@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 
 const PlayerControls = ({ ws, playerName }) => {
-    // Track button states
     const [buttonState, setButtonState] = useState({
         left: false,
         right: false,
     });
 
-    // Send movement state when it updates
+    // Send movement state to server when buttonState changes
     useEffect(() => {
         ws.send(
             JSON.stringify({
@@ -19,14 +18,39 @@ const PlayerControls = ({ ws, playerName }) => {
     }, [buttonState, playerName, ws]);
 
     const handleMouseDown = (dir) => {
-        console.log(`Mouse down: ${dir}`);
         setButtonState((prev) => ({ ...prev, [dir]: true }));
     };
 
     const handleMouseUp = (dir) => {
-        console.log(`Mouse up: ${dir}`);
         setButtonState((prev) => ({ ...prev, [dir]: false }));
     };
+
+    const handleKeyDown = (event) => {
+        if (event.key === "ArrowLeft") {
+            setButtonState((prev) => ({ ...prev, left: true }));
+        } else if (event.key === "ArrowRight") {
+            setButtonState((prev) => ({ ...prev, right: true }));
+        }
+    };
+
+    const handleKeyUp = (event) => {
+        if (event.key === "ArrowLeft") {
+            setButtonState((prev) => ({ ...prev, left: false }));
+        } else if (event.key === "ArrowRight") {
+            setButtonState((prev) => ({ ...prev, right: false }));
+        }
+    };
+
+    // Attach event listeners when the component mounts
+    useEffect(() => {
+        window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("keyup", handleKeyUp);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("keyup", handleKeyUp);
+        };
+    }, []);
 
     return (
         <div style={{ textAlign: "center", marginTop: "20px" }}>
