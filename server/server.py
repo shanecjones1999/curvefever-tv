@@ -29,6 +29,8 @@ tv_client: WebSocket = None  # The TV connection
 game_running = False
 game = None
 
+frame_rate = 1 / 60
+
 
 @app.websocket("/ws/{client_type}/{name}")
 async def websocket_endpoint(websocket: WebSocket, client_type: str,
@@ -111,7 +113,7 @@ async def game_loop():
         await broadcast_game_state()
 
         # Wait before the next update (adjust time step as needed)
-        await asyncio.sleep(0.016)  # 50ms update interval
+        await asyncio.sleep(frame_rate)
 
 
 async def broadcast_game_state():

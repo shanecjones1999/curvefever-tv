@@ -1,0 +1,7 @@
+[services.backend]
+  build = "./server"
+  start = "uvicorn server.main:app --host 0.0.0.0 --port $PORT"
+
+[services.frontend]
+  build = "./curvefever-client"
+  start = "npm install && npm run build && npx serve -s build -l $PORT"

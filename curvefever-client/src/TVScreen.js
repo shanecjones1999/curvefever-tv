@@ -41,8 +41,10 @@ const TVScreen = () => {
                     // Update existing players' positions
                     Object.entries(data.players).forEach(([id, playerData]) => {
                         if (updatedPlayers[id]) {
-                            updatedPlayers[id].x = playerData.x;
-                            updatedPlayers[id].y = playerData.y;
+                            updatedPlayers[id].update(
+                                playerData.x,
+                                playerData.y
+                            );
                         }
                     });
 
