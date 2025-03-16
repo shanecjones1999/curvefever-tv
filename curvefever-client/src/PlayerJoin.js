@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PlayerControls from "./PlayerControls";
 
 const PlayerJoin = () => {
     const [name, setName] = useState("");
@@ -31,7 +32,12 @@ const PlayerJoin = () => {
     };
 
     if (gameStarted) {
-        return <h2>Game has started! Get ready...</h2>;
+        return (
+            <div>
+                <h2>Game has started! Get ready...</h2>
+                <PlayerControls ws={ws} playerName={name} />
+            </div>
+        );
     }
 
     return (

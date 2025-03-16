@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import GameCanvas from "./GameCanvas";
 
 const TVScreen = () => {
     const [players, setPlayers] = useState([]);
@@ -25,7 +26,11 @@ const TVScreen = () => {
 
     const startGame = () => {
         if (ws) {
-            ws.send("start_game"); // Send message to start the game
+            ws.send(
+                JSON.stringify({
+                    type: "start_game",
+                })
+            ); // Send message to start the game
             setGameStarted(true);
         }
     };
@@ -33,7 +38,10 @@ const TVScreen = () => {
     return (
         <div style={{ textAlign: "center", marginTop: "50px" }}>
             {gameStarted ? (
-                <h2>Game has started!</h2> // Show game started message
+                <div>
+                    <h2>Game has started!</h2>
+                    <GameCanvas />
+                </div> // Show game started message
             ) : (
                 <>
                     <h2>Lobby</h2>
