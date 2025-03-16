@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import GameCanvas from "./GameCanvas";
+import { Player } from "./models/Player";
 
 const TVScreen = () => {
     const [players, setPlayers] = useState([]);
@@ -17,10 +18,38 @@ const TVScreen = () => {
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.type === "lobby") {
-                setPlayers(data.players);
+                const playerList = [];
+                for (let i = 0; i < data.players.length; i++) {
+                    const plyr = new Player(
+                        data.players[i].name,
+                        data.players[i].x,
+                        data.players[i].y
+                    );
+                    playerList.push(plyr);
+                }
+                //setPlayers(data.players);
+                setPlayers(playerList);
             }
             if (data.type === "game_update") {
-                setPlayers(data.players); // Update player state
+                setPlayers((prevPlayers) => {
+                    // Now you're working with the latest state (`prevPlayers`)
+
+                    // Update players' positions based on the incoming data
+                    const updatedPlayers = prevPlayers.map((player) => {
+                        const updatedPlayerData = data.players.find(
+                            (p) => p.name === player.name
+                        );
+
+                        if (updatedPlayerData) {
+                            player.x = updatedPlayerData.x;
+                            player.y = updatedPlayerData.y;
+                        }
+
+                        return player;
+                    });
+
+                    return updatedPlayers;
+                });
             }
         };
 

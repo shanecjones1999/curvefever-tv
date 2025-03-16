@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 
-const Canvas = ({ players }) => {
+const GameCanvas = ({ players }) => {
     const canvasRef = useRef(null);
     const animationFrameIdRef = useRef(null); // Store animation frame ID
 
@@ -13,17 +13,7 @@ const Canvas = ({ players }) => {
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
 
             players.forEach((player) => {
-                // Draw player (circle)
-                ctx.beginPath();
-                ctx.arc(player.x, player.y, 10, 0, Math.PI * 2);
-                ctx.fillStyle = "#007bff"; // Player color
-                ctx.fill();
-                ctx.stroke();
-
-                // Draw player's name
-                ctx.fillStyle = "#000000";
-                ctx.font = "14px Arial";
-                ctx.fillText(player.name, player.x - 12, player.y - 12);
+                player.draw(ctx);
             });
 
             // Request the next animation frame
@@ -47,4 +37,4 @@ const Canvas = ({ players }) => {
     );
 };
 
-export default Canvas;
+export default GameCanvas;

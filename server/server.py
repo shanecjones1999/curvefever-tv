@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import json
 import sys
 import os
+import uuid
 import asyncio
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -35,7 +36,7 @@ async def websocket_endpoint(websocket: WebSocket, client_type: str,
     if client_type == "tv":
         tv_client = websocket
     else:
-        player = Player(name)
+        player = Player(uuid.uuid4().hex[:8], name, "#e36495")
         players[websocket] = player
         await broadcast_lobby()
 
@@ -66,11 +67,7 @@ async def websocket_endpoint(websocket: WebSocket, client_type: str,
 async def broadcast_lobby():
     """Send the updated player list to the TV."""
     if tv_client:
-        player_list = [{
-            "name": player.name,
-            "x": player.x,
-            "y": player.y
-        } for player in players.values()]
+        player_list = [player.to_json() for player in players.values()]
 
         await tv_client.send_json({"type": "lobby", "players": player_list})
 

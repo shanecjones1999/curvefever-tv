@@ -3,15 +3,31 @@ import math
 
 class Player:
 
-    def __init__(self, name):
+    def __init__(self, id, name, color):
+        self.id = "id"
         self.name = name
         self.x = 100
         self.y = 100
         self.angle = 0
+        self.color = "color"
+        self.radius = "radius"
         self.left_pressed = False
         self.right_pressed = False
         self.speed = 2
-        self.turning_speed = 0.04
+        self.turning_speed = 0.05
+        self.eliminated = False
+        self.score = 0
+        self.trail = []
+
+    def to_json(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "x": self.x,
+            "y": self.y,
+            "color": self.color,
+            "eliminated": self.eliminated,
+        }
 
     def update_position(self):
         """Update player's position based on current movement state."""
