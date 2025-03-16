@@ -104,7 +104,7 @@ async def game_loop():
         await broadcast_game_state()
 
         # Wait before the next update (adjust time step as needed)
-        await asyncio.sleep(0.5)  # 50ms update interval
+        await asyncio.sleep(0.016)  # 50ms update interval
 
 
 async def broadcast_game_state():
