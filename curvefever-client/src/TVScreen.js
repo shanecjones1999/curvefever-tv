@@ -8,7 +8,7 @@ const TVScreen = () => {
     const [ws, setWs] = useState(null);
 
     useEffect(() => {
-        const ws = new WebSocket("ws://localhost:8000/ws/tv/lobby");
+        const ws = new WebSocket(`ws://localhost:8000/ws/tv/lobby`);
 
         ws.onopen = () => {
             console.log("TV WebSocket Connected");
