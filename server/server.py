@@ -23,6 +23,7 @@ app.add_middleware(
 # Store player names mapped to WebSocket connections
 players: Dict[WebSocket, Player] = {}
 tv_client: WebSocket = None  # The TV connection
+game_running = False
 
 
 @app.websocket("/ws/{client_type}/{name}")
@@ -51,8 +52,9 @@ async def websocket_endpoint(websocket: WebSocket, client_type: str,
             elif client_type == "player" and parsed_message.get(
                     "type") == "move":
                 player = players[websocket]
-                print(parsed_message.get("player"),
-                      parsed_message.get("direction"))
+                player.left_pressed = parsed_message['state']['left']
+                player.right_pressed = parsed_message['state']['right']
+
     except WebSocketDisconnect:
         if client_type == "tv":
             tv_client = None
@@ -64,15 +66,20 @@ async def websocket_endpoint(websocket: WebSocket, client_type: str,
 async def broadcast_lobby():
     """Send the updated player list to the TV."""
     if tv_client:
-        name_list = []
-        for player in players.values():
-            name_list.append(player.name)
-        # player_list = list(players.values())
-        await tv_client.send_json({"type": "lobby", "players": name_list})
+        player_list = [{
+            "name": player.name,
+            "x": player.x,
+            "y": player.y
+        } for player in players.values()]
+
+        await tv_client.send_json({"type": "lobby", "players": player_list})
 
 
 async def start_game():
     """Send game start event to all players and TV."""
+    global game_running
+    game_running = True
+
     for ws in list(players.keys()):
         try:
             await ws.send_json({"type": "game_start"})
@@ -82,6 +89,8 @@ async def start_game():
     if tv_client:
         await tv_client.send_json({"type": "game_start"})
 
+    asyncio.create_task(game_loop())
+
 
 async def game_loop():
     """Continuously update player positions and send game state."""
@@ -89,14 +98,13 @@ async def game_loop():
     while game_running:
         # TODO: Update player positions based on their movement direction
         for player in players.values():
-            player.update_position(
-            )  # Implement movement logic in Player class
+            player.update_position()
 
         # Broadcast the updated game state to all clients
         await broadcast_game_state()
 
         # Wait before the next update (adjust time step as needed)
-        await asyncio.sleep(0.05)  # 50ms update interval
+        await asyncio.sleep(0.5)  # 50ms update interval
 
 
 async def broadcast_game_state():
@@ -104,11 +112,11 @@ async def broadcast_game_state():
     game_state = {
         "type": "game_update",
         "players": {
-            name: {
+            player.name: {
                 "x": player.x,
                 "y": player.y
             }
-            for name, player in players.items()
+            for player in players.values()
         }
     }
 

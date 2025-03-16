@@ -40,7 +40,7 @@ const TVScreen = () => {
             {gameStarted ? (
                 <div>
                     <h2>Game has started!</h2>
-                    <GameCanvas />
+                    <GameCanvas players={players} />
                 </div> // Show game started message
             ) : (
                 <>
@@ -48,7 +48,7 @@ const TVScreen = () => {
                     <h3>Waiting for players...</h3>
                     <ul>
                         {players.map((player, idx) => (
-                            <li key={idx}>{player}</li>
+                            <li key={idx}>{player.name}</li>
                         ))}
                     </ul>
                     <button
