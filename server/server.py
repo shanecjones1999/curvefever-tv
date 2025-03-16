@@ -6,10 +6,12 @@ import json
 import sys
 import os
 import uuid
+import random
 import asyncio
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from player import Player
+from game import Game
 
 app = FastAPI()
 
@@ -25,6 +27,7 @@ app.add_middleware(
 players: Dict[WebSocket, Player] = {}
 tv_client: WebSocket = None  # The TV connection
 game_running = False
+game = None
 
 
 @app.websocket("/ws/{client_type}/{name}")
@@ -36,7 +39,8 @@ async def websocket_endpoint(websocket: WebSocket, client_type: str,
     if client_type == "tv":
         tv_client = websocket
     else:
-        player = Player(uuid.uuid4().hex[:8], name, "#e36495")
+        player = Player(uuid.uuid4().hex[:8], name, 4,
+                        "#{:06x}".format(random.randint(0, 0xFFFFFF)))
         players[websocket] = player
         await broadcast_lobby()
 
@@ -67,9 +71,12 @@ async def websocket_endpoint(websocket: WebSocket, client_type: str,
 async def broadcast_lobby():
     """Send the updated player list to the TV."""
     if tv_client:
-        player_list = [player.to_json() for player in players.values()]
+        player_dict = {
+            player.id: player.to_json()
+            for player in players.values()
+        }
 
-        await tv_client.send_json({"type": "lobby", "players": player_list})
+        await tv_client.send_json({"type": "lobby", "players": player_dict})
 
 
 async def start_game():
@@ -86,6 +93,9 @@ async def start_game():
     if tv_client:
         await tv_client.send_json({"type": "game_start"})
 
+    global game
+    game = Game(players.values())
+
     asyncio.create_task(game_loop())
 
 
@@ -93,9 +103,9 @@ async def game_loop():
     """Continuously update player positions and send game state."""
     global game_running
     while game_running:
-        # TODO: Update player positions based on their movement direction
-        for player in players.values():
-            player.update_position()
+
+        global game
+        game.update_player_positions()
 
         # Broadcast the updated game state to all clients
         await broadcast_game_state()
@@ -107,18 +117,9 @@ async def game_loop():
 async def broadcast_game_state():
     """Send updated player positions to TV and players."""
 
-    # player_state = []
-    # for player in players.values():
-    #     tmp = {player.name: {"x": player.x, "y": player.y}}
-    #     player_state.append(tmp)
+    player_dict = {player.id: player.to_json() for player in players.values()}
 
-    player_list = [{
-        "name": player.name,
-        "x": player.x,
-        "y": player.y
-    } for player in players.values()]
-
-    game_state = {"type": "game_update", "players": player_list}
+    game_state = {"type": "game_update", "players": player_dict}
 
     for ws in list(players.keys()):
         try:

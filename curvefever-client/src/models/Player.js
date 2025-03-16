@@ -1,11 +1,18 @@
 export class Player {
-    constructor(name, x = 0, y = 0, color = "#666") {
+    constructor(id, name, x, y, radius, color, eliminated) {
+        this.id = id;
         this.name = name;
         this.x = x;
         this.y = y;
-        this.radius = 4;
+        this.radius = radius;
         this.trail = []; // Array to store trail points
         this.color = color;
+        this.eliminated = eliminated;
+    }
+
+    update(x, y) {
+        this.x = x;
+        this.y = y;
     }
 
     draw(ctx) {

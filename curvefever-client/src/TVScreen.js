@@ -3,7 +3,7 @@ import GameCanvas from "./GameCanvas";
 import { Player } from "./models/Player";
 
 const TVScreen = () => {
-    const [players, setPlayers] = useState([]);
+    const [players, setPlayers] = useState({});
     const [gameStarted, setGameStarted] = useState(false);
     const [ws, setWs] = useState(null);
 
@@ -18,34 +18,32 @@ const TVScreen = () => {
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.type === "lobby") {
-                const playerList = [];
-                for (let i = 0; i < data.players.length; i++) {
-                    const plyr = new Player(
-                        data.players[i].name,
-                        data.players[i].x,
-                        data.players[i].y
+                const playerDict = {};
+                Object.entries(data.players).forEach(([id, playerData]) => {
+                    playerDict[id] = new Player(
+                        id,
+                        playerData.name,
+                        playerData.x,
+                        playerData.y,
+                        playerData.radius,
+                        playerData.color,
+                        playerData.eliminated
                     );
-                    playerList.push(plyr);
-                }
-                //setPlayers(data.players);
-                setPlayers(playerList);
+                });
+
+                setPlayers(playerDict);
             }
             if (data.type === "game_update") {
                 setPlayers((prevPlayers) => {
-                    // Now you're working with the latest state (`prevPlayers`)
+                    // Copy the previous state
+                    const updatedPlayers = { ...prevPlayers };
 
-                    // Update players' positions based on the incoming data
-                    const updatedPlayers = prevPlayers.map((player) => {
-                        const updatedPlayerData = data.players.find(
-                            (p) => p.name === player.name
-                        );
-
-                        if (updatedPlayerData) {
-                            player.x = updatedPlayerData.x;
-                            player.y = updatedPlayerData.y;
+                    // Update existing players' positions
+                    Object.entries(data.players).forEach(([id, playerData]) => {
+                        if (updatedPlayers[id]) {
+                            updatedPlayers[id].x = playerData.x;
+                            updatedPlayers[id].y = playerData.y;
                         }
-
-                        return player;
                     });
 
                     return updatedPlayers;
@@ -72,20 +70,20 @@ const TVScreen = () => {
             {gameStarted ? (
                 <div>
                     <h2>Game has started!</h2>
-                    <GameCanvas players={players} />
+                    <GameCanvas players={Object.values(players)} />
                 </div> // Show game started message
             ) : (
                 <>
                     <h2>Lobby</h2>
                     <h3>Waiting for players...</h3>
                     <ul>
-                        {players.map((player, idx) => (
-                            <li key={idx}>{player.name}</li>
+                        {Object.values(players).map((player) => (
+                            <li key={player.name}>{player.name}</li>
                         ))}
                     </ul>
                     <button
                         onClick={startGame}
-                        disabled={players.length === 0} // Disable button if no players
+                        disabled={Object.keys(players).length === 0}
                     >
                         Start Game
                     </button>

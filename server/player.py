@@ -3,14 +3,15 @@ import math
 
 class Player:
 
-    def __init__(self, id, name, color):
-        self.id = "id"
+    def __init__(self, id, name, radius, color):
+        self.id = id
         self.name = name
         self.x = 100
         self.y = 100
+        self.radius = radius
         self.angle = 0
-        self.color = "color"
-        self.radius = "radius"
+        self.color = color
+        self.radius = 4
         self.left_pressed = False
         self.right_pressed = False
         self.speed = 2
@@ -25,6 +26,7 @@ class Player:
             "name": self.name,
             "x": self.x,
             "y": self.y,
+            "radius": self.radius,
             "color": self.color,
             "eliminated": self.eliminated,
         }
