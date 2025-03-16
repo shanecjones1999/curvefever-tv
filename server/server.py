@@ -109,16 +109,19 @@ async def game_loop():
 
 async def broadcast_game_state():
     """Send updated player positions to TV and players."""
-    game_state = {
-        "type": "game_update",
-        "players": {
-            player.name: {
-                "x": player.x,
-                "y": player.y
-            }
-            for player in players.values()
-        }
-    }
+
+    # player_state = []
+    # for player in players.values():
+    #     tmp = {player.name: {"x": player.x, "y": player.y}}
+    #     player_state.append(tmp)
+
+    player_list = [{
+        "name": player.name,
+        "x": player.x,
+        "y": player.y
+    } for player in players.values()]
+
+    game_state = {"type": "game_update", "players": player_list}
 
     for ws in list(players.keys()):
         try:

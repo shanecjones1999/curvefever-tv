@@ -19,6 +19,9 @@ const TVScreen = () => {
             if (data.type === "lobby") {
                 setPlayers(data.players);
             }
+            if (data.type === "game_update") {
+                setPlayers(data.players); // Update player state
+            }
         };
 
         return () => ws.close();
