@@ -29,7 +29,7 @@ rooms: Dict[str, Dict] = {}
 
 @app.get("/get_room_code")
 async def get_room_code():
-    room_code = "123"  # uuid.uuid4().hex[:4]
+    room_code = uuid.uuid4().hex[:4]
     rooms[room_code] = {"tv": None, "players": {}}
     return {"room_code": room_code}
 
@@ -58,10 +58,10 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
                     "type") == "start_game":
                 await start_game(room_code)
 
-            # elif client_type == "player" and parsed_message.get(
-            #         "type") == "move":
-            #     player.left_pressed = parsed_message['state']['left']
-            #     player.right_pressed = parsed_message['state']['right']
+            elif client_type == "player" and parsed_message["type"] == "move":
+                player: Player = rooms[room_code]["players"][websocket]
+                player.left_pressed = parsed_message['state']['left']
+                player.right_pressed = parsed_message['state']['right']
 
     except WebSocketDisconnect:
 
