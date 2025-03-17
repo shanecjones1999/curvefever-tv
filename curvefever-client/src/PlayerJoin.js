@@ -10,12 +10,12 @@ const PlayerJoin = () => {
 
     const connectWebSocket = () => {
         if (name.trim() === "") return;
-        console.log(roomCode);
 
-        const ws = new WebSocket(`ws://localhost:8000/ws/player/${name}`);
+        const ws = new WebSocket(
+            `ws://localhost:8000/ws/${roomCode}/player/${name}`
+        );
 
         ws.onopen = () => {
-            ws.send(JSON.stringify({ room_code: roomCode }));
             setConnected(true);
         };
 

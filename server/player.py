@@ -3,8 +3,9 @@ import math
 
 class Player:
 
-    def __init__(self, id, name, radius, color):
+    def __init__(self, id, room_code, name, radius, color):
         self.id = id
+        self.room_code = room_code
         self.name = name
         self.x = 100
         self.y = 100
@@ -23,6 +24,7 @@ class Player:
     def to_json(self):
         return {
             "id": self.id,
+            "room_code": self.room_code,
             "name": self.name,
             "x": self.x,
             "y": self.y,

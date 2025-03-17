@@ -23,13 +23,8 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-# Store player names mapped to WebSocket connections
-players: Dict[WebSocket, Player] = {}
-tv_client: WebSocket = None  # The TV connection
-game_running = False
-game = None
 frame_rate = 1 / 60
-rooms: Dict[str, Dict] = {}  # Store active game rooms
+rooms: Dict[str, Dict] = {}
 
 
 @app.get("/get_room_code")
@@ -39,40 +34,19 @@ async def get_room_code():
     return {"room_code": room_code}
 
 
-@app.websocket("/ws/{client_type}/{name}")
-async def websocket_endpoint(websocket: WebSocket, client_type: str,
-                             name: str):
-    global tv_client
+@app.websocket("/ws/{room_code}/{client_type}/{name}")
+async def websocket_endpoint(websocket: WebSocket, room_code: str,
+                             client_type: str, name: str):
     await websocket.accept()
 
     if client_type == "tv":
-        tv_client = websocket
-        room_code = uuid.uuid4().hex[:4]
-
         rooms[room_code]['tv'] = websocket
-        print('howdy')
-        # await websocket.send_json({
-        #     "type": "room_code",
-        #     "room_code": room_code
-        # })
     else:
-        player = Player(uuid.uuid4().hex[:8], name, 4,
-                        "#{:06x}".format(random.randint(0, 0xFFFFFF)))
-        players[websocket] = player
-        await broadcast_lobby()
-
-        message = await websocket.receive_text()
-        parsed_message = json.loads(message)
-
-        room_code = parsed_message.get("room_code")
-        if room_code not in rooms:
-            await websocket.close()  # Close connection if room doesn't exist
-            return
-
-        # Add player to the room
-        player = Player(uuid.uuid4().hex[:8], name, 4,
+        player = Player(uuid.uuid4().hex[:8], room_code, name, 4,
                         "#{:06x}".format(random.randint(0, 0xFFFFFF)))
         rooms[room_code]["players"][websocket] = player
+
+        await broadcast_lobby(room_code)
 
     try:
         while True:
@@ -82,81 +56,80 @@ async def websocket_endpoint(websocket: WebSocket, client_type: str,
 
             if client_type == "tv" and parsed_message.get(
                     "type") == "start_game":
-                await start_game()
+                await start_game(room_code)
 
-            elif client_type == "player" and parsed_message.get(
-                    "type") == "move":
-                player = players[websocket]
-                player.left_pressed = parsed_message['state']['left']
-                player.right_pressed = parsed_message['state']['right']
+            # elif client_type == "player" and parsed_message.get(
+            #         "type") == "move":
+            #     player.left_pressed = parsed_message['state']['left']
+            #     player.right_pressed = parsed_message['state']['right']
 
     except WebSocketDisconnect:
+
         print("Disconnecting websocket")
         if client_type == "tv":
-            tv_client = None
+            rooms[room_code]["tv"] = None
         else:
-            players.pop(websocket, None)
-            await broadcast_lobby()
+            rooms[room_code]["players"].pop(websocket)
+            await broadcast_lobby(room_code)
 
 
-async def broadcast_lobby():
+async def broadcast_lobby(room_code: str):
     """Send the updated player list to the TV."""
-    if tv_client:
+    tv_client: WebSocket = rooms[room_code]['tv']
+
+    room = rooms[room_code]
+
+    if (tv_client):
         player_dict = {
             player.id: player.to_json()
-            for player in players.values()
+            for player in room["players"].values()
         }
 
         await tv_client.send_json({"type": "lobby", "players": player_dict})
 
 
-async def start_game():
+async def start_game(room_code: str):
     """Send game start event to all players and TV."""
-    global game_running
-    game_running = True
+
+    tv_client: WebSocket = rooms[room_code]['tv']
+    players = rooms[room_code]["players"]
 
     for ws in list(players.keys()):
-        try:
-            await ws.send_json({"type": "game_start"})
-        except WebSocketDisconnect:
-            players.pop(ws, None)
+        await ws.send_json({"type": "game_start"})
+        # try:
+        # await ws.send_json({"type": "game_start"})
+        # except WebSocketDisconnect:
+        #     players.pop(ws, None)
 
     if tv_client:
         await tv_client.send_json({"type": "game_start"})
 
-    global game
-    game = Game(players.values())
-
-    asyncio.create_task(game_loop())
+    #asyncio.create_task(game_loop())
 
 
-async def game_loop():
-    """Continuously update player positions and send game state."""
-    global game_running
-    while game_running:
+# async def game_loop():
+#     """Continuously update player positions and send game state."""
+#     while game_running:
+#         game.update_player_positions()
 
-        global game
-        game.update_player_positions()
+#         # Broadcast the updated game state to all clients
+#         await broadcast_game_state()
 
-        # Broadcast the updated game state to all clients
-        await broadcast_game_state()
+#         # Wait before the next update (adjust time step as needed)
+#         await asyncio.sleep(frame_rate)
 
-        # Wait before the next update (adjust time step as needed)
-        await asyncio.sleep(frame_rate)
+# async def broadcast_game_state():
+#     """Send updated player positions to TV and players."""
 
+#     player_dict = {player.id: player.to_json() for player in players.values()}
 
-async def broadcast_game_state():
-    """Send updated player positions to TV and players."""
+#     game_state = {"type": "game_update", "players": player_dict}
 
-    player_dict = {player.id: player.to_json() for player in players.values()}
+#     for ws in list(players.keys()):
+#         try:
+#             await ws.send_json(game_state)
+#         except WebSocketDisconnect:
+#             players.pop(ws, None)
 
-    game_state = {"type": "game_update", "players": player_dict}
-
-    for ws in list(players.keys()):
-        try:
-            await ws.send_json(game_state)
-        except WebSocketDisconnect:
-            players.pop(ws, None)
-
-    if tv_client:
-        await tv_client.send_json(game_state)
+#     if tv_client:
+#         await tv_client.send_json(game_state)
