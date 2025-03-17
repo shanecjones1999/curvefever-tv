@@ -6,12 +6,12 @@ const TVScreen = () => {
     const [players, setPlayers] = useState({});
     const [gameStarted, setGameStarted] = useState(false);
     const [ws, setWs] = useState(null);
+    const [roomCode, setRoomCode] = useState("");
 
     useEffect(() => {
         const ws = new WebSocket(`ws://localhost:8000/ws/tv/lobby`);
 
         ws.onopen = () => {
-            console.log("TV WebSocket Connected");
             setWs(ws);
         };
 
@@ -32,13 +32,12 @@ const TVScreen = () => {
                 });
 
                 setPlayers(playerDict);
-            }
-            if (data.type === "game_update") {
+            } else if (data.type === "room_code") {
+                setRoomCode(data.room_code);
+            } else if (data.type === "game_update") {
                 setPlayers((prevPlayers) => {
-                    // Copy the previous state
                     const updatedPlayers = { ...prevPlayers };
 
-                    // Update existing players' positions
                     Object.entries(data.players).forEach(([id, playerData]) => {
                         if (updatedPlayers[id]) {
                             updatedPlayers[id].update(
@@ -53,7 +52,10 @@ const TVScreen = () => {
             }
         };
 
-        return () => ws.close();
+        return () => {
+            console.log("Closing websocket");
+            ws.close();
+        };
     }, []);
 
     const startGame = () => {
@@ -62,7 +64,7 @@ const TVScreen = () => {
                 JSON.stringify({
                     type: "start_game",
                 })
-            ); // Send message to start the game
+            );
             setGameStarted(true);
         }
     };
@@ -73,10 +75,11 @@ const TVScreen = () => {
                 <div>
                     <h2>Game has started!</h2>
                     <GameCanvas players={Object.values(players)} />
-                </div> // Show game started message
+                </div>
             ) : (
                 <>
                     <h2>Lobby</h2>
+                    <h3>Room code: {roomCode}</h3>
                     <h3>Waiting for players...</h3>
                     <ul>
                         {Object.values(players).map((player) => (

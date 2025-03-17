@@ -9,6 +9,7 @@ const PlayerJoin = () => {
 
     const connectWebSocket = () => {
         if (name.trim() === "") return;
+        console.log("Opening PlayerJoin websocket");
         const websocket = new WebSocket(
             `ws://localhost:8000/ws/player/${name}`
         );

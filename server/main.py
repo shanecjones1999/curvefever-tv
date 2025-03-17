@@ -40,6 +40,11 @@ async def websocket_endpoint(websocket: WebSocket, client_type: str,
 
     if client_type == "tv":
         tv_client = websocket
+        room_code = uuid.uuid4().hex[:4]
+        await websocket.send_json({
+            "type": "room_code",
+            "room_code": room_code
+        })
     else:
         player = Player(uuid.uuid4().hex[:8], name, 4,
                         "#{:06x}".format(random.randint(0, 0xFFFFFF)))
@@ -63,6 +68,7 @@ async def websocket_endpoint(websocket: WebSocket, client_type: str,
                 player.right_pressed = parsed_message['state']['right']
 
     except WebSocketDisconnect:
+        print("Disconnecting websocket")
         if client_type == "tv":
             tv_client = None
         else:
