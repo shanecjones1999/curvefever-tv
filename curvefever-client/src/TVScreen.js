@@ -2,11 +2,10 @@ import React, { useState, useEffect } from "react";
 import GameCanvas from "./GameCanvas";
 import { Player } from "./models/Player";
 
-const TVScreen = () => {
+const TVScreen = ({ roomCode }) => {
     const [players, setPlayers] = useState({});
     const [gameStarted, setGameStarted] = useState(false);
     const [ws, setWs] = useState(null);
-    const [roomCode, setRoomCode] = useState("");
 
     useEffect(() => {
         const ws = new WebSocket(`ws://localhost:8000/ws/tv/lobby`);
@@ -32,8 +31,6 @@ const TVScreen = () => {
                 });
 
                 setPlayers(playerDict);
-            } else if (data.type === "room_code") {
-                setRoomCode(data.room_code);
             } else if (data.type === "game_update") {
                 setPlayers((prevPlayers) => {
                     const updatedPlayers = { ...prevPlayers };

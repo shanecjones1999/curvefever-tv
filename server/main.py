@@ -28,8 +28,15 @@ players: Dict[WebSocket, Player] = {}
 tv_client: WebSocket = None  # The TV connection
 game_running = False
 game = None
-
 frame_rate = 1 / 60
+rooms: Dict[str, Dict] = {}  # Store active game rooms
+
+
+@app.get("/get_room_code")
+async def get_room_code():
+    room_code = uuid.uuid4().hex[:4]
+    rooms[room_code] = {"tv": None, "players": {}}
+    return {"room_code": room_code}
 
 
 @app.websocket("/ws/{client_type}/{name}")
@@ -41,15 +48,31 @@ async def websocket_endpoint(websocket: WebSocket, client_type: str,
     if client_type == "tv":
         tv_client = websocket
         room_code = uuid.uuid4().hex[:4]
-        await websocket.send_json({
-            "type": "room_code",
-            "room_code": room_code
-        })
+
+        rooms[room_code]['tv'] = websocket
+        print('howdy')
+        # await websocket.send_json({
+        #     "type": "room_code",
+        #     "room_code": room_code
+        # })
     else:
         player = Player(uuid.uuid4().hex[:8], name, 4,
                         "#{:06x}".format(random.randint(0, 0xFFFFFF)))
         players[websocket] = player
         await broadcast_lobby()
+
+        message = await websocket.receive_text()
+        parsed_message = json.loads(message)
+
+        room_code = parsed_message.get("room_code")
+        if room_code not in rooms:
+            await websocket.close()  # Close connection if room doesn't exist
+            return
+
+        # Add player to the room
+        player = Player(uuid.uuid4().hex[:8], name, 4,
+                        "#{:06x}".format(random.randint(0, 0xFFFFFF)))
+        rooms[room_code]["players"][websocket] = player
 
     try:
         while True:
