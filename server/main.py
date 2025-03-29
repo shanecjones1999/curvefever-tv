@@ -10,8 +10,10 @@ import random
 import asyncio
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from tv_client import TvClient
 from player import Player
 from game import Game
+from game_manager import GameManager
 
 app = FastAPI()
 
@@ -25,12 +27,14 @@ app.add_middleware(
 
 frame_rate = 1 / 60
 rooms: Dict[str, Dict] = {}
+game_manager = GameManager()
 
 
 @app.get("/get_room_code")
 async def get_room_code():
     room_code = uuid.uuid4().hex[:4]
     rooms[room_code] = {"tv": None, "players": {}}
+    game_manager.create_game(room_code)
     return {"room_code": room_code}
 
 
@@ -40,12 +44,16 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
     await websocket.accept()
 
     if client_type == "tv":
+        game = game_manager.get_game(room_code)
+        tv_client = TvClient(websocket)
+        game.add_tv_client(tv_client)
         rooms[room_code]['tv'] = websocket
     else:
         player = Player(uuid.uuid4().hex[:8], room_code, name, 4,
                         "#{:06x}".format(random.randint(0, 0xFFFFFF)))
         rooms[room_code]["players"][websocket] = player
-
+        game = game_manager.get_game(room_code)
+        game.add_player(player)
         await broadcast_lobby(room_code)
 
     try:
@@ -68,6 +76,7 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
         print("Disconnecting websocket")
         if client_type == "tv":
             rooms[room_code]["tv"] = None
+            game_manager.remove_game(room_code)
         else:
             rooms[room_code]["players"].pop(websocket)
             await broadcast_lobby(room_code)
@@ -75,17 +84,20 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
 
 async def broadcast_lobby(room_code: str):
     """Send the updated player list to the TV."""
-    tv_client: WebSocket = rooms[room_code]['tv']
-
-    room = rooms[room_code]
+    game = game_manager.get_game(room_code)
+    tv_client = game.tv_client
+    players = game.players
 
     if (tv_client):
         player_dict = {
             player.id: player.to_json()
-            for player in room["players"].values()
+            for player in players.values()
         }
 
-        await tv_client.send_json({"type": "lobby", "players": player_dict})
+        await tv_client.socket.send_json({
+            "type": "lobby",
+            "players": player_dict
+        })
 
 
 async def start_game(room_code: str):
@@ -107,7 +119,7 @@ async def start_game(room_code: str):
     asyncio.create_task(game_loop(tv_client, players))
 
 
-async def game_loop(tv_client, players):
+async def game_loop(tv_client, players: list[Player]):
     """Continuously update player positions and send game state."""
     while True:
         for player in players.values():
@@ -135,3 +147,5 @@ async def broadcast_game_state(tv_client, players):
 
     if tv_client:
         await tv_client.send_json(game_state)
+
+    # raise error if tv_client does not exist
