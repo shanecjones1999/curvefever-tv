@@ -7,6 +7,7 @@ const PlayerJoin = () => {
     const [gameStarted, setGameStarted] = useState(false);
     const [roomCode, setRoomCode] = useState("");
     const [ws, setWs] = useState(null);
+    const [playerId, setPlayerId] = useState(null);
 
     const connectWebSocket = () => {
         if (name.trim() === "") return;
@@ -23,6 +24,8 @@ const PlayerJoin = () => {
             const data = JSON.parse(event.data);
             if (data.type === "game_start") {
                 setGameStarted(true);
+            } else if (data.type === "player_info") {
+                setPlayerId(data.playerId);
             }
         };
 
@@ -37,7 +40,7 @@ const PlayerJoin = () => {
         return (
             <div>
                 <h2>Game has started! Get ready...</h2>
-                <PlayerControls ws={ws} playerName={name} />
+                <PlayerControls ws={ws} playerName={name} playerId={playerId} />
             </div>
         );
     }

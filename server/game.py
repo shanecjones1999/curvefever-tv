@@ -38,3 +38,12 @@ class Game:
 
     async def broadcast_lobby(self):
         await self.tv_client.broadcast_lobby(self.players)
+
+    def update_player_direction(self, player_id: str, left_pressed: bool,
+                                right_pressed: bool):
+        if player_id not in self.players:
+            raise Exception("player not in game")
+
+        player = self.players[player_id]
+        player.left_pressed = left_pressed
+        player.right_pressed = right_pressed

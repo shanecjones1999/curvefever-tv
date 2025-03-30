@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const PlayerControls = ({ ws, playerName }) => {
+const PlayerControls = ({ ws, playerName, playerId }) => {
     const [buttonState, setButtonState] = useState({
         left: false,
         right: false,
@@ -9,10 +9,12 @@ const PlayerControls = ({ ws, playerName }) => {
     // Send movement state to the server when the buttonState changes
     const sendMovementState = (left, right) => {
         if (ws) {
+            console.log(playerId);
             ws.send(
                 JSON.stringify({
                     type: "move",
                     player: playerName,
+                    playerId: playerId,
                     state: { left, right },
                 })
             );

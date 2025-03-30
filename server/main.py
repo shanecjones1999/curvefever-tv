@@ -53,19 +53,26 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
         game.add_player(player, websocket)
         await broadcast_lobby(room_code)
 
+        await websocket.send_json({
+            "type": "player_info",
+            "playerId": player.id,
+        })
+
     try:
         while True:
             message = await websocket.receive_text()
 
             parsed_message = json.loads(message)
 
-            if client_type == "tv" and parsed_message.get(
-                    "type") == "start_game":
+            if client_type == "tv" and parsed_message["type"] == "start_game":
                 await start_game(room_code)
 
             elif client_type == "player" and parsed_message["type"] == "move":
                 game = game_manager.get_game(room_code)
-
+                player_id = parsed_message["playerId"]
+                game.update_player_direction(player_id,
+                                             parsed_message['state']['left'],
+                                             parsed_message['state']['right'])
                 #player: Player = rooms[room_code]["players"][websocket]
                 #player.left_pressed = parsed_message['state']['left']
                 #player.right_pressed = parsed_message['state']['right']
