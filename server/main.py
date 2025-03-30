@@ -12,7 +12,6 @@ import asyncio
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from tv_client import TvClient
 from player import Player
-from game import Game
 from game_manager import GameManager
 
 app = FastAPI()
@@ -25,7 +24,6 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-frame_rate = 1 / 60
 game_manager = GameManager()
 
 
@@ -73,12 +71,9 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
                 game.update_player_direction(player_id,
                                              parsed_message['state']['left'],
                                              parsed_message['state']['right'])
-                #player: Player = rooms[room_code]["players"][websocket]
-                #player.left_pressed = parsed_message['state']['left']
-                #player.right_pressed = parsed_message['state']['right']
 
     except WebSocketDisconnect:
-
+        # TODO: Enhance logic
         print("Disconnecting websocket")
         if client_type == "tv":
             game_manager.remove_game(room_code)
@@ -95,40 +90,7 @@ async def broadcast_lobby(room_code: str):
 async def start_game(room_code: str):
     """Send game start event to all players and TV."""
     game = game_manager.get_game(room_code)
-    tv_client = game.tv_client
-    players = game.players.values()
-    sockets = game.sockets.values()
 
-    for ws in sockets:
-        await ws.send_json({"type": "game_start"})
+    await game.start_game()
 
-    if tv_client:
-        await tv_client.socket.send_json({"type": "game_start"})
-
-    asyncio.create_task(game_loop(tv_client, players))
-
-
-async def game_loop(tv_client, players: list[Player]):
-    """Continuously update player positions and send game state."""
-    while True:
-        for player in players:
-            player.update_position()
-
-        # Broadcast the updated game state to all clients
-        await broadcast_game_state(tv_client, players)
-
-        # Wait before the next update (adjust time step as needed)
-        await asyncio.sleep(frame_rate)
-
-
-async def broadcast_game_state(tv_client: TvClient, players: list[Player]):
-    """Send updated player positions to TV and players."""
-
-    player_dict = {player.id: player.to_json() for player in players}
-
-    game_state = {"type": "game_update", "players": player_dict}
-
-    if tv_client:
-        await tv_client.socket.send_json(game_state)
-
-    # raise error if tv_client does not exist
+    asyncio.create_task(game.game_loop())

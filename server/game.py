@@ -2,6 +2,7 @@ from player import Player
 from tv_client import TvClient
 from typing import Dict, List, Optional
 from fastapi import WebSocket
+import asyncio
 
 
 class Game:
@@ -18,6 +19,7 @@ class Game:
         self.players: Dict[str, Player] = {}  # player.id -> Player
         self.sockets: Dict[str, WebSocket] = {}  # player.id -> WebSocket
         self.tv_client: Optional[TvClient] = None
+        self.frame_rate = 1 / 60
 
     def add_tv_client(self, tv_client: TvClient):
         if self.tv_client:
@@ -47,3 +49,32 @@ class Game:
         player = self.players[player_id]
         player.left_pressed = left_pressed
         player.right_pressed = right_pressed
+
+    async def start_game(self):
+        for socket in self.sockets.values():
+            await socket.send_json({"type": "game_start"})
+
+        await self.tv_client.socket.send_json({"type": "game_start"})
+
+        self.started = True
+
+    async def game_loop(self):
+        """Continuously update player positions and send game state."""
+        while True:
+            for player in self.players.values():
+                player.update_position()
+
+            await self.broadcast_game_state()
+            await asyncio.sleep(self.frame_rate)
+
+    async def broadcast_game_state(self):
+        """Send updated player positions to TV and players."""
+
+        player_dict = {
+            player.id: player.to_json()
+            for player in self.players.values()
+        }
+
+        game_state = {"type": "game_update", "players": player_dict}
+
+        await self.tv_client.socket.send_json(game_state)
