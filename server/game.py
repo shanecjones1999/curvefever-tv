@@ -4,7 +4,9 @@ from typing import Dict, List, Optional, Tuple
 from fastapi import WebSocket
 import asyncio
 import random
+import math
 import time
+from trail import Trail, TrailPoint, TrailSegment
 
 
 class Game:
@@ -64,10 +66,10 @@ class Game:
 
         start_positions = self.generate_starting_positions(len(self.players))
 
-        for i, (player_id, player) in enumerate(self.players.items()):
-            if i < len(start_positions):
-                player.x, player.y = start_positions[i]
-            player.eliminated = False
+        for player in self.players.values():
+            player.reset()
+            player.x = 300
+            player.y = 300
 
     def generate_starting_positions(self,
                                     num_players: int) -> List[Tuple[int, int]]:
@@ -112,7 +114,10 @@ class Game:
 
             self.update_player_positions()
 
-            round_over = False
+            for player in self.players.values():
+                self.check_collision(player)
+
+            round_over = self.is_round_over()
             if round_over:
                 await self.end_round()
 
@@ -135,3 +140,33 @@ class Game:
         }
 
         await self.tv_client.socket.send_json(game_state)
+
+    def is_round_over(self):
+        eliminated_count = 0
+        for player in self.players.values():
+            if player.eliminated:
+                eliminated_count += 1
+
+        if len(self.players) == 1:
+            return eliminated_count == 1
+        else:
+            return eliminated_count >= len(self.players) - 1
+
+    def check_collision(self, player: Player):
+        """Check if the player collides with any trail, including their own."""
+        for other_player in self.players.values():
+            for segment in other_player.trail.segments:
+                # Skip checking recent points to prevent immediate self-collision
+                if other_player == player:
+                    trail_points = segment.points[:-10]
+                else:
+                    trail_points = segment.points
+
+                for point in trail_points:
+                    if self.is_colliding(player, point):
+                        player.eliminated = True
+
+    def is_colliding(self, player: Player, point: TrailPoint):
+        """Check if a player's position overlaps with a given trail point."""
+        distance = math.sqrt((player.x - point.x)**2 + (player.y - point.y)**2)
+        return distance < player.radius

@@ -1,4 +1,5 @@
 import math
+from trail import Trail
 
 
 class Player:
@@ -19,7 +20,7 @@ class Player:
         self.turning_speed = 0.05
         self.eliminated = False
         self.score = 0
-        self.trail = []
+        self.trail = Trail()
 
     def to_json(self):
         return {
@@ -35,15 +36,18 @@ class Player:
 
     def update_position(self):
         """Update player's position based on current movement state."""
-        # Update angle if turning
+        if self.eliminated:
+            return
+
         if self.left_pressed:
             self.angle -= self.turning_speed
         if self.right_pressed:
             self.angle += self.turning_speed
 
-        # Move forward in the direction of the current angle
         self.x += self.speed * math.cos(self.angle)
         self.y += self.speed * math.sin(self.angle)
+
+        self.trail.add_point(self.x, self.y)
 
         if self.x > 800:
             self.x = 0
@@ -56,3 +60,7 @@ class Player:
 
         if self.y < 0:
             self.y = 600
+
+    def reset(self):
+        self.eliminated = False
+        self.trail = Trail()
