@@ -51,8 +51,10 @@ class Game:
         for player in self.players.values():
             if not player.eliminated:
                 player.update_position(self.game_index)
-                tp = TrailPoint(player.x, player.y, player.id, self.game_index)
-                self.grid.insert(tp)
+                if not player.trail.is_floating:
+                    tp = TrailPoint(player.x, player.y, player.id,
+                                    self.game_index)
+                    self.grid.insert(tp)
 
     async def broadcast_lobby(self):
         await self.tv_client.broadcast_lobby(self.players)
@@ -123,9 +125,6 @@ class Game:
 
             self.update_player_positions()
 
-            # for player in self.players.values():
-            #     self.check_collision(player)
-
             for player in self.players.values():
                 self.smart_check_collision(player)
 
@@ -180,20 +179,6 @@ class Game:
 
     def _is_recent(self, point: TrailPoint, buffer=10):
         return self.game_index - point.game_index < buffer
-
-    def check_collision(self, player: Player):
-        """Check if the player collides with any trail, including their own."""
-        for other_player in self.players.values():
-            for segment in other_player.trail.segments:
-                # Skip checking recent points to prevent immediate self-collision
-                if other_player == player:
-                    trail_points = segment.points[:-10]
-                else:
-                    trail_points = segment.points
-
-                for point in trail_points:
-                    if self.is_colliding(player, point):
-                        player.eliminated = True
 
     def is_colliding(self, player: Player, point: TrailPoint):
         """Check if a player's position overlaps with a given trail point."""
