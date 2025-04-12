@@ -45,10 +45,9 @@ export class Player {
 
             const dx = Math.abs(curr.x - prev.x);
             const dy = Math.abs(curr.y - prev.y);
-            const wrapThreshold = 10; //
+            const wrapThreshold = 10; // TODO: Consider adjusting this threshold
 
             if (dx > wrapThreshold || dy > wrapThreshold) {
-                // Large jump: move instead of lineTo
                 ctx.moveTo(curr.x, curr.y);
             } else {
                 ctx.lineTo(curr.x, curr.y);
@@ -57,7 +56,6 @@ export class Player {
 
         ctx.strokeStyle = this.color;
         ctx.lineWidth = this.radius * 2;
-        //ctx.lineCap = "round";
         ctx.stroke();
     }
 

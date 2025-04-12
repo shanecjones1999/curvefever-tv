@@ -1,5 +1,5 @@
 from collections import defaultdict
-from trail import Trail, TrailPoint, TrailSegment
+from trail import TrailPoint
 
 
 class SpatialHashGrid:
