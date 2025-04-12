@@ -7,6 +7,7 @@ import random
 import math
 import time
 from trail import Trail, TrailPoint, TrailSegment
+from spatial_grid_hash import SpatialHashGrid
 
 
 class Game:
@@ -27,6 +28,7 @@ class Game:
         self.frame_rate = 1 / 60
         self.frame_count = 0
         self.game_over = False
+        self.grid = SpatialHashGrid(cell_size=10)
 
     def add_tv_client(self, tv_client: TvClient):
         if self.tv_client:
@@ -48,6 +50,8 @@ class Game:
         for player in self.players.values():
             if not player.eliminated:
                 player.update_position()
+                tp = TrailPoint(player.x, player.y)
+                self.grid.insert(tp)
 
     async def broadcast_lobby(self):
         await self.tv_client.broadcast_lobby(self.players)
@@ -63,6 +67,7 @@ class Game:
 
     def reset_round(self):
         self.frame_count = 0
+        self.grid.clear()
 
         start_positions = self.generate_starting_positions(len(self.players))
 
@@ -115,8 +120,11 @@ class Game:
 
             self.update_player_positions()
 
+            # for player in self.players.values():
+            #     self.check_collision(player)
+
             for player in self.players.values():
-                self.check_collision(player)
+                self.smart_check_collision(player)
 
             round_over = self.is_round_over()
             if round_over:
@@ -153,6 +161,20 @@ class Game:
         else:
             return eliminated_count >= len(self.players) - 1
 
+    def smart_check_collision(self, player: Player):
+        if player.eliminated:
+            return
+
+        nearby_points = self.grid.get_nearby_points(player.x, player.y)
+        for point in nearby_points:
+            # Optional: skip player's own newest points
+            # if point.player_id == player.id and self._is_recent(point):
+            #     continue
+
+            if self.is_colliding(player, point):
+                player.eliminated = True
+                break
+
     def check_collision(self, player: Player):
         """Check if the player collides with any trail, including their own."""
         for other_player in self.players.values():
@@ -169,5 +191,8 @@ class Game:
 
     def is_colliding(self, player: Player, point: TrailPoint):
         """Check if a player's position overlaps with a given trail point."""
-        distance = math.sqrt((player.x - point.x)**2 + (player.y - point.y)**2)
-        return distance < player.radius
+        dx = player.x - point.x
+        dy = player.y - point.y
+        distance_squared = dx * dx + dy * dy
+        # return distance_squared < player.radius**2
+        return False

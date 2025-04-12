@@ -33,13 +33,30 @@ export class Player {
         }
     }
 
+    // drawTrail(ctx) {
+    //     this.trail.forEach((point) => {
+    //         ctx.beginPath();
+    //         ctx.arc(point.x, point.y, this.radius, 0, Math.PI * 2);
+    //         ctx.fillStyle = this.color;
+    //         ctx.fill();
+    //     });
+    // }
+
     drawTrail(ctx) {
-        this.trail.forEach((point) => {
-            ctx.beginPath();
-            ctx.arc(point.x, point.y, this.radius, 0, Math.PI * 2);
-            ctx.fillStyle = this.color;
-            ctx.fill();
-        });
+        if (this.trail.length < 2) return;
+
+        ctx.beginPath();
+        ctx.moveTo(this.trail[0].x, this.trail[0].y);
+
+        for (let i = 1; i < this.trail.length; i += 2) {
+            // skip every 2nd point
+            ctx.lineTo(this.trail[i].x, this.trail[i].y);
+        }
+
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = this.radius * 2; // simulate circle thickness
+        ctx.lineCap = "round";
+        ctx.stroke();
     }
 
     reset() {
