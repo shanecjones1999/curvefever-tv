@@ -5,6 +5,10 @@ import PlayerScreen from "./PlayerScreen";
 const App = () => {
     const [view, setView] = useState("");
     const [roomCode, setRoomCode] = useState("");
+    const [ws, setWs] = useState(null);
+    const [playerId, setPlayerId] = useState(null);
+    const [playerName, setPlayerName] = useState(null);
+    const [gameStarted, setGameStarted] = useState(false);
 
     const handleTVClick = async () => {
         const response = await fetch("http://localhost:8000/get_room_code");
@@ -17,45 +21,47 @@ const App = () => {
         const stored = localStorage.getItem("playerInfo");
         if (stored) {
             const savedPlayer = JSON.parse(stored);
-            const { roomCode, playerId } = savedPlayer;
+            const { roomCode, playerId, playerName } = savedPlayer;
 
-            const ws = new WebSocket(
+            const newWs = new WebSocket(
                 `ws://localhost:8000/ws/${roomCode}/player`
             );
 
-            ws.onopen = () => {
-                ws.send(
+            newWs.onopen = () => {
+                newWs.send(
                     JSON.stringify({
                         type: "reconnect",
-                        room_code: roomCode, // match server-side key
-                        player_id: playerId, // match server-side key
+                        room_code: roomCode,
+                        player_id: playerId,
                     })
                 );
             };
 
-            ws.onmessage = (event) => {
+            newWs.onmessage = (event) => {
                 const data = JSON.parse(event.data);
 
                 if (data.type === "reconnect_success") {
                     console.log("Reconnected successfully:", data.player);
-
-                    // Optionally update local state:
-                    // setPlayer(data.player);
-                    // setGameStarted(true); etc.
+                    setView("player");
+                    setRoomCode(roomCode);
+                    setPlayerId(playerId);
+                    setPlayerName(playerName);
+                    setWs(newWs);
+                    setGameStarted(true);
                 } else if (data.type === "reconnect_failed") {
                     console.warn("Failed to reconnect. Clearing saved data.");
                     localStorage.removeItem("playerInfo");
-                    // optionally redirect to join screen
+                } else if (data.type === "game_start") {
+                    setGameStarted(true);
                 }
             };
 
-            ws.onerror = (e) => {
+            newWs.onerror = (e) => {
                 console.error("WebSocket error:", e);
             };
 
-            // Optional cleanup
             return () => {
-                ws.close();
+                newWs.close();
             };
         }
     }, []);
@@ -72,7 +78,13 @@ const App = () => {
             ) : view === "tv" ? (
                 <TVScreen roomCode={roomCode} />
             ) : (
-                <PlayerScreen />
+                <PlayerScreen
+                    ws={ws}
+                    playerId={playerId}
+                    playerName={playerName}
+                    roomCode={roomCode}
+                    gameStarted={gameStarted}
+                />
             )}
         </div>
     );
