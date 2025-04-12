@@ -37,7 +37,8 @@ const TVScreen = ({ roomCode }) => {
                         if (updatedPlayers[id]) {
                             updatedPlayers[id].update(
                                 playerData.x,
-                                playerData.y
+                                playerData.y,
+                                playerData.is_floating
                             );
                         }
                     });

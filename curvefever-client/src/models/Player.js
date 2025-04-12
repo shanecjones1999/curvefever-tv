@@ -8,11 +8,13 @@ export class Player {
         this.eliminated = eliminated;
         this.x = undefined;
         this.y = undefined;
+        this.isFloating = false;
     }
 
-    update(x, y) {
+    update(x, y, isFloating) {
         this.x = x;
         this.y = y;
+        this.isFloating = isFloating;
     }
 
     draw(ctx) {
@@ -26,8 +28,9 @@ export class Player {
         ctx.fillStyle = "#000000";
         ctx.font = "14px Arial";
         ctx.fillText(this.name, this.x - 12, this.y - 12);
-
-        this.trail.push({ x: this.x, y: this.y });
+        if (!this.isFloating) {
+            this.trail.push({ x: this.x, y: this.y });
+        }
     }
 
     drawTrail(ctx) {

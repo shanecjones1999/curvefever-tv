@@ -27,12 +27,31 @@ class Trail:
         self.segments: List[TrailSegment] = [TrailSegment()]
         # only create a gap if the length of the current segment is X
         self.gap_chance = gap_chance
+        self.is_floating = False
+        self.float_counter = 0
+        self.float_duration = 20
 
     def create_segment(self):
-        if self.get_last_segment().segment_length() >= 100:
-            self.segments.append(TrailSegment())
+        self.segments.append(TrailSegment())
+
+    def can_trail_gap(self):
+        return self.get_last_segment().segment_length() >= 100
 
     def add_point(self, x, y):
+        if self.is_floating:
+            self.float_counter -= 1
+            if self.float_counter <= 0:
+                # Done floating, resume trail
+                self.is_floating = False
+                self.create_segment()
+            return
+
+        if self.can_trail_gap(
+        ):  # random.random() < self.gap_chance and self.get_last_segment().segment_length() >= 50:
+            self.is_floating = True
+            self.float_counter = self.float_duration
+            return
+
         point = TrailPoint(x, y)
         last_segment = self.get_last_segment()
         last_segment.add_point(point)

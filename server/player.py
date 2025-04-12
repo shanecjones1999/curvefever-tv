@@ -32,6 +32,7 @@ class Player:
             "radius": self.radius,
             "color": self.color,
             "eliminated": self.eliminated,
+            "is_floating": self.trail.is_floating,
         }
 
     def update_position(self):
