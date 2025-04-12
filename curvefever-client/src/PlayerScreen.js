@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PlayerControls from "./PlayerControls";
 
-const PlayerJoin = () => {
+const PlayerScreen = () => {
     const [name, setName] = useState("");
     const [connected, setConnected] = useState(false);
     const [gameStarted, setGameStarted] = useState(false);
@@ -27,6 +27,7 @@ const PlayerJoin = () => {
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.type === "game_start") {
+                console.log(data.playerId, playerId, name, roomCode);
                 if (name && roomCode && data.playerId) {
                     localStorage.setItem(
                         "playerInfo",
@@ -55,7 +56,7 @@ const PlayerJoin = () => {
         return (
             <div>
                 <h2>Game has started! Get ready...</h2>
-                <PlayerControls ws={ws} playerName={name} playerId={playerId} />
+                <PlayerControls ws={ws} playerId={playerId} />
             </div>
         );
     }
@@ -85,4 +86,4 @@ const PlayerJoin = () => {
     );
 };
 
-export default PlayerJoin;
+export default PlayerScreen;

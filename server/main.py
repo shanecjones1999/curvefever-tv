@@ -67,6 +67,24 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
                         "type": "player_info",
                         "playerId": player.id,
                     })
+
+                elif message["type"] == "reconnect":
+                    try:
+                        player_id = message["player_id"]
+                        room_code = message["room_code"]
+                        game = game_manager.get_game(room_code)
+                        if player_id in game.players:
+                            player = game.players[player_id]
+                            game.sockets[player_id] = websocket
+                            await websocket.send_json({
+                                "type":
+                                "reconnect_success",
+                                "player":
+                                player.to_json()
+                            })
+                    except:
+                        await websocket.send_json({"type": "reconnect_failed"})
+
                 elif message["type"] == "move":
                     game = game_manager.get_game(room_code)
                     player_id = message["playerId"]

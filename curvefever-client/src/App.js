@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import TVScreen from "./TVScreen";
-import PlayerJoin from "./PlayerJoin";
+import PlayerScreen from "./PlayerScreen";
 
 const App = () => {
     const [view, setView] = useState("");
@@ -16,9 +16,47 @@ const App = () => {
     useEffect(() => {
         const stored = localStorage.getItem("playerInfo");
         if (stored) {
-            const playerInfo = JSON.parse(stored);
-            // e.g., auto-reconnect or prefill input
-            console.log("Restoring player:", playerInfo);
+            const savedPlayer = JSON.parse(stored);
+            const { roomCode, playerId } = savedPlayer;
+
+            const ws = new WebSocket(
+                `ws://localhost:8000/ws/${roomCode}/player`
+            );
+
+            ws.onopen = () => {
+                ws.send(
+                    JSON.stringify({
+                        type: "reconnect",
+                        room_code: roomCode, // match server-side key
+                        player_id: playerId, // match server-side key
+                    })
+                );
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+
+                if (data.type === "reconnect_success") {
+                    console.log("Reconnected successfully:", data.player);
+
+                    // Optionally update local state:
+                    // setPlayer(data.player);
+                    // setGameStarted(true); etc.
+                } else if (data.type === "reconnect_failed") {
+                    console.warn("Failed to reconnect. Clearing saved data.");
+                    localStorage.removeItem("playerInfo");
+                    // optionally redirect to join screen
+                }
+            };
+
+            ws.onerror = (e) => {
+                console.error("WebSocket error:", e);
+            };
+
+            // Optional cleanup
+            return () => {
+                ws.close();
+            };
         }
     }, []);
 
@@ -34,7 +72,7 @@ const App = () => {
             ) : view === "tv" ? (
                 <TVScreen roomCode={roomCode} />
             ) : (
-                <PlayerJoin />
+                <PlayerScreen />
             )}
         </div>
     );
