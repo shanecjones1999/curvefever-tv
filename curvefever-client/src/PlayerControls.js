@@ -9,7 +9,6 @@ const PlayerControls = ({ ws, playerName, playerId }) => {
     // Send movement state to the server when the buttonState changes
     const sendMovementState = (left, right) => {
         if (ws) {
-            console.log(playerId);
             ws.send(
                 JSON.stringify({
                     type: "move",
