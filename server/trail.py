@@ -4,9 +4,11 @@ from typing import Dict, List
 
 class TrailPoint:
 
-    def __init__(self, x: int, y: int):
+    def __init__(self, x: int, y: int, player_id: str, game_index: int):
         self.x = x
         self.y = y
+        self.player_id = player_id
+        self.game_index = game_index
 
 
 class TrailSegment:
@@ -37,7 +39,7 @@ class Trail:
     def can_trail_gap(self):
         return self.get_last_segment().segment_length() >= 100
 
-    def add_point(self, x, y):
+    def add_point(self, x: int, y: int, player_id: str, game_index: int):
         if self.is_floating:
             self.float_counter -= 1
             if self.float_counter <= 0:
@@ -52,7 +54,7 @@ class Trail:
             self.float_counter = self.float_duration
             return
 
-        point = TrailPoint(x, y)
+        point = TrailPoint(x, y, player_id, game_index)
         last_segment = self.get_last_segment()
         last_segment.add_point(point)
 

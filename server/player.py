@@ -35,7 +35,7 @@ class Player:
             "is_floating": self.trail.is_floating,
         }
 
-    def update_position(self):
+    def update_position(self, game_index: int):
         """Update player's position based on current movement state."""
         if self.eliminated:
             return
@@ -48,7 +48,7 @@ class Player:
         self.x += self.speed * math.cos(self.angle)
         self.y += self.speed * math.sin(self.angle)
 
-        self.trail.add_point(self.x, self.y)
+        self.trail.add_point(self.x, self.y, self.id, game_index)
 
         if self.x > 800:
             self.x = 0

@@ -15,7 +15,7 @@ class SpatialHashGrid:
         key = self._hash(point.x, point.y)
         self.cells[key].append(point)
 
-    def get_nearby_points(self, x, y):
+    def get_nearby_points(self, x, y) -> list[TrailPoint]:
         """Get points in the 3x3 grid around the current position."""
         cx, cy = self._hash(x, y)
         nearby = []

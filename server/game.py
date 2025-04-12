@@ -26,9 +26,10 @@ class Game:
         self.sockets: Dict[str, WebSocket] = {}  # player.id -> WebSocket
         self.tv_client: Optional[TvClient] = None
         self.frame_rate = 1 / 60
-        self.frame_count = 0
+        self.frame_count = 0  # probably remove this
         self.game_over = False
         self.grid = SpatialHashGrid(cell_size=10)
+        self.game_index = 0
 
     def add_tv_client(self, tv_client: TvClient):
         if self.tv_client:
@@ -49,8 +50,8 @@ class Game:
     def update_player_positions(self):
         for player in self.players.values():
             if not player.eliminated:
-                player.update_position()
-                tp = TrailPoint(player.x, player.y)
+                player.update_position(self.game_index)
+                tp = TrailPoint(player.x, player.y, player.id, self.game_index)
                 self.grid.insert(tp)
 
     async def broadcast_lobby(self):
@@ -67,6 +68,7 @@ class Game:
 
     def reset_round(self):
         self.frame_count = 0
+        self.game_index = 0
         self.grid.clear()
 
         start_positions = self.generate_starting_positions(len(self.players))
@@ -117,6 +119,7 @@ class Game:
         """Continuously update player positions and send game state."""
         while not self.game_over:
             self.frame_count += 1
+            self.game_index += 1
 
             self.update_player_positions()
 
@@ -168,12 +171,15 @@ class Game:
         nearby_points = self.grid.get_nearby_points(player.x, player.y)
         for point in nearby_points:
             # Optional: skip player's own newest points
-            # if point.player_id == player.id and self._is_recent(point):
-            #     continue
+            if point.player_id == player.id and self._is_recent(point):
+                continue
 
             if self.is_colliding(player, point):
                 player.eliminated = True
                 break
+
+    def _is_recent(self, point: TrailPoint, buffer=10):
+        return self.game_index - point.game_index < buffer
 
     def check_collision(self, player: Player):
         """Check if the player collides with any trail, including their own."""
@@ -194,5 +200,4 @@ class Game:
         dx = player.x - point.x
         dy = player.y - point.y
         distance_squared = dx * dx + dy * dy
-        # return distance_squared < player.radius**2
-        return False
+        return distance_squared < player.radius**2
