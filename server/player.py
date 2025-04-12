@@ -8,8 +8,8 @@ class Player:
         self.id = id
         self.room_code = room_code
         self.name = name
-        self.x = 100
-        self.y = 100
+        self.x = 0
+        self.y = 0
         self.radius = radius
         self.angle = 0
         self.color = color

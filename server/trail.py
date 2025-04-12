@@ -17,15 +17,19 @@ class TrailSegment:
     def add_point(self, point: TrailPoint):
         self.points.append(point)
 
+    def segment_length(self):
+        return len(self.points)
+
 
 class Trail:
 
     def __init__(self, gap_chance=0.05):
         self.segments: List[TrailSegment] = [TrailSegment()]
+        # only create a gap if the length of the current segment is X
         self.gap_chance = gap_chance
 
     def create_segment(self):
-        if random.random() > self.gap_chance:
+        if self.get_last_segment().segment_length() >= 100:
             self.segments.append(TrailSegment())
 
     def add_point(self, x, y):

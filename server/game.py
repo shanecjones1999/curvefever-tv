@@ -98,6 +98,7 @@ class Game:
 
     async def end_round(self):
         await asyncio.sleep(3)
+        await self.tv_client.reset_round()
 
         if self.round_number >= 3:
             await self.end_game()

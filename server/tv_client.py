@@ -18,3 +18,6 @@ class TvClient:
         }
 
         await self.socket.send_json({"type": "lobby", "players": player_dict})
+
+    async def reset_round(self):
+        await self.socket.send_json({"type": "reset_round"})

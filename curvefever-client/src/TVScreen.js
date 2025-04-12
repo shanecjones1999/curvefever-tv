@@ -22,8 +22,6 @@ const TVScreen = ({ roomCode }) => {
                     playerDict[id] = new Player(
                         id,
                         playerData.name,
-                        playerData.x,
-                        playerData.y,
                         playerData.radius,
                         playerData.color,
                         playerData.eliminated
@@ -42,6 +40,16 @@ const TVScreen = ({ roomCode }) => {
                                 playerData.y
                             );
                         }
+                    });
+
+                    return updatedPlayers;
+                });
+            } else if (data.type === "reset_round") {
+                setPlayers((prevPlayers) => {
+                    const updatedPlayers = { ...prevPlayers };
+
+                    Object.values(updatedPlayers).forEach((player) => {
+                        player.reset();
                     });
 
                     return updatedPlayers;
