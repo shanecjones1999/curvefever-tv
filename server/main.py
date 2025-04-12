@@ -34,43 +34,45 @@ async def get_room_code():
     return {"room_code": room_code}
 
 
-@app.websocket("/ws/{room_code}/{client_type}/{name}")
+@app.websocket("/ws/{room_code}/{client_type}")
 async def websocket_endpoint(websocket: WebSocket, room_code: str,
-                             client_type: str, name: str):
+                             client_type: str):
     await websocket.accept()
 
     if client_type == "tv":
         game = game_manager.get_game(room_code)
         tv_client = TvClient(websocket)
         game.add_tv_client(tv_client)
-    else:
-        player = Player(uuid.uuid4().hex[:8], room_code, name, 4,
-                        "#{:06x}".format(random.randint(0, 0xFFFFFF)))
-
-        game = game_manager.get_game(room_code)
-        game.add_player(player, websocket)
-        await broadcast_lobby(room_code)
-
-        await websocket.send_json({
-            "type": "player_info",
-            "playerId": player.id,
-        })
 
     try:
         while True:
-            message = await websocket.receive_text()
+            message = await websocket.receive_json()
 
-            parsed_message = json.loads(message)
+            if client_type == "tv":
+                if message["type"] == "start_game":
+                    await start_game(room_code)
 
-            if client_type == "tv" and parsed_message["type"] == "start_game":
-                await start_game(room_code)
+            elif client_type == "player":
+                if message["type"] == "join":
+                    name = message["name"]
+                    player = Player(
+                        uuid.uuid4().hex[:8], room_code, name, 4,
+                        "#{:06x}".format(random.randint(0, 0xFFFFFF)))
 
-            elif client_type == "player" and parsed_message["type"] == "move":
-                game = game_manager.get_game(room_code)
-                player_id = parsed_message["playerId"]
-                game.update_player_direction(player_id,
-                                             parsed_message['state']['left'],
-                                             parsed_message['state']['right'])
+                    game = game_manager.get_game(room_code)
+                    game.add_player(player, websocket)
+                    await broadcast_lobby(room_code)
+
+                    await websocket.send_json({
+                        "type": "player_info",
+                        "playerId": player.id,
+                    })
+                elif message["type"] == "move":
+                    game = game_manager.get_game(room_code)
+                    player_id = message["playerId"]
+                    game.update_player_direction(player_id,
+                                                 message['state']['left'],
+                                                 message['state']['right'])
 
     except WebSocketDisconnect:
         # TODO: Enhance logic

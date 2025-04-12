@@ -8,7 +8,7 @@ const TVScreen = ({ roomCode }) => {
     const [ws, setWs] = useState(null);
 
     useEffect(() => {
-        const ws = new WebSocket(`ws://localhost:8000/ws/${roomCode}/tv/lobby`);
+        const ws = new WebSocket(`ws://localhost:8000/ws/${roomCode}/tv`);
 
         ws.onopen = () => {
             setWs(ws);

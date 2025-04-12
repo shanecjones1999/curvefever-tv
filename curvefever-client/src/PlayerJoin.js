@@ -12,18 +12,21 @@ const PlayerJoin = () => {
     const connectWebSocket = () => {
         if (name.trim() === "") return;
 
-        const ws = new WebSocket(
-            `ws://localhost:8000/ws/${roomCode}/player/${name}`
-        );
+        const ws = new WebSocket(`ws://localhost:8000/ws/${roomCode}/player`);
 
         ws.onopen = () => {
+            ws.send(
+                JSON.stringify({
+                    type: "join",
+                    name: name,
+                })
+            );
             setConnected(true);
         };
 
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.type === "game_start") {
-                console.log(data.playerId);
                 if (name && roomCode && data.playerId) {
                     localStorage.setItem(
                         "playerInfo",
@@ -38,9 +41,6 @@ const PlayerJoin = () => {
                 setGameStarted(true);
             } else if (data.type === "player_info") {
                 setPlayerId(data.playerId);
-                console.log("name:", name);
-                console.log("room code:", roomCode);
-                console.log("playerId", playerId);
             }
         };
 
