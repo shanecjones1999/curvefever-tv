@@ -67,11 +67,20 @@ const App = () => {
     }, []);
 
     return (
-        <div style={{ textAlign: "center", marginTop: "50px" }}>
+        <div style={styles.container}>
+            <div className="text-red-500 text-3xl font-bold">
+                If this is red and bold, Tailwind is working!
+            </div>
+
             {!view ? (
-                <div>
-                    <button onClick={handleTVClick}>I'm the TV</button>
-                    <button onClick={() => setView("player")}>
+                <div style={styles.buttonContainer}>
+                    <button style={styles.button} onClick={handleTVClick}>
+                        I'm the TV
+                    </button>
+                    <button
+                        style={{ ...styles.button, backgroundColor: "#28a745" }}
+                        onClick={() => setView("player")}
+                    >
                         Join as Player
                     </button>
                 </div>
@@ -88,6 +97,34 @@ const App = () => {
             )}
         </div>
     );
+};
+
+const styles = {
+    container: {
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "linear-gradient(135deg, #1e3c72, #2a5298)",
+        color: "#fff",
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    },
+    buttonContainer: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "20px",
+    },
+    button: {
+        padding: "16px 32px",
+        fontSize: "18px",
+        fontWeight: "bold",
+        borderRadius: "10px",
+        border: "none",
+        backgroundColor: "#007bff",
+        color: "white",
+        cursor: "pointer",
+        transition: "background-color 0.3s ease, transform 0.2s ease",
+    },
 };
 
 export default App;
