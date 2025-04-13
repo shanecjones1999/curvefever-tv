@@ -18,10 +18,10 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins (for development)
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Allow all HTTP methods
-    allow_headers=["*"],  # Allow all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 game_manager = GameManager()
@@ -111,19 +111,6 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
                     game.update_player_direction(player_id,
                                                  message['state']['left'],
                                                  message['state']['right'])
-
-    # except WebSocketDisconnect:
-    #     # TODO: Enhance logic
-    #     print("Disconnecting websocket")
-    #     if client_type == "tv":
-    #         game = game_manager.get_game(room_code)
-    #         if not game:
-    #             return
-    #         await game.broadcast_tv_disconnect()
-
-    #         game_manager.remove_game(room_code)
-    #     else:
-    #         await broadcast_lobby(room_code)
 
     except WebSocketDisconnect:
         print("Disconnecting websocket")

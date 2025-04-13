@@ -19,27 +19,26 @@ const PlayerControls = ({ ws, playerId }) => {
         }
     };
 
-    // Handle touch or mouse start (movement starts)
     const handleStart = (dir) => {
-        setButtonState((prevState) => ({
-            ...prevState,
-            [dir]: true,
-        }));
-
-        if (dir === "left") {
-            sendMovementState(true, false);
-        } else if (dir === "right") {
-            sendMovementState(false, true);
-        }
+        setButtonState((prevState) => {
+            const newState = {
+                ...prevState,
+                [dir]: true,
+            };
+            sendMovementState(newState.left, newState.right);
+            return newState;
+        });
     };
 
-    // Handle touch or mouse end (movement stops)
-    const handleEnd = () => {
-        setButtonState({
-            left: false,
-            right: false,
+    const handleEnd = (dir) => {
+        setButtonState((prevState) => {
+            const newState = {
+                ...prevState,
+                [dir]: false,
+            };
+            sendMovementState(newState.left, newState.right);
+            return newState;
         });
-        sendMovementState(false, false);
     };
 
     // Handle keydown for arrow keys
@@ -53,8 +52,10 @@ const PlayerControls = ({ ws, playerId }) => {
 
     // Handle keyup for arrow keys
     const handleKeyUp = (event) => {
-        if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-            handleEnd();
+        if (event.key === "ArrowLeft") {
+            handleEnd("left");
+        } else if (event.key === "ArrowRight") {
+            handleEnd("right");
         }
     };
 

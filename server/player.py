@@ -42,7 +42,7 @@ class Player:
 
         if self.left_pressed:
             self.angle -= self.turning_speed
-        if self.right_pressed:
+        elif self.right_pressed:
             self.angle += self.turning_speed
 
         self.x += self.speed * math.cos(self.angle)
