@@ -62,7 +62,7 @@ const TVScreen = ({ roomCode }) => {
     };
 
     return (
-        <div className="h-screen overflow-hidden flex items-center justify-center text-white px-4">
+        <div className="min-h-screen flex items-center justify-center text-white px-4">
             {gameStarted ? (
                 <div className="text-center w-full">
                     <h2 className="text-3xl font-bold mb-6">
@@ -73,12 +73,22 @@ const TVScreen = ({ roomCode }) => {
             ) : (
                 <div className="text-center max-w-xl w-full">
                     <h2 className="text-3xl font-bold mb-2">Lobby</h2>
-                    <h3 className="text-xl mb-1">
+                    <h3 className="text-xl mb-1 flex items-center gap-2">
                         Room Code:{" "}
                         <span className="font-mono tracking-widest bg-gray-800 px-3 py-1 rounded-md inline-block">
                             {roomCode}
                         </span>
+                        <button
+                            onClick={() => {
+                                navigator.clipboard.writeText(roomCode);
+                            }}
+                            className="ml-1 px-2 py-1 text-sm rounded bg-gray-700 hover:bg-gray-600 transition"
+                            title="Copy to clipboard"
+                        >
+                            📋
+                        </button>
                     </h3>
+
                     <h3 className="mt-4 text-gray-400 italic">
                         Waiting for players...
                     </h3>
