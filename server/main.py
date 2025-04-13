@@ -129,8 +129,26 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
 
             await game.broadcast_tv_disconnect()
             game_manager.remove_game(room_code)
+        elif client_type == "player":
+            game = game_manager.get_game(room_code)
+            if not game or game.started:
+                return
+
+            player_id = None
+            for pid, sock in game.sockets.items():
+                if sock == websocket:
+                    player_id = pid
+                    break
+
+            if player_id:
+                print(f"Removing player {player_id}")
+                del game.players[player_id]
+                del game.sockets[player_id]
+                await game.broadcast_lobby()  # Notify the TV of updated lobby
+            else:
+                print("Disconnected websocket not found in player_sockets")
         else:
-            await broadcast_lobby(room_code)
+            raise Exception(f"Invalid client_type: {client_type}")
 
 
 async def broadcast_lobby(room_code: str):

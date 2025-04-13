@@ -197,3 +197,5 @@ class Game:
     async def broadcast_tv_disconnect(self):
         for socket in self.sockets.values():
             await socket.send_json({"type": "tv_disconnect"})
+
+    # def remove_player(self, player_id):
