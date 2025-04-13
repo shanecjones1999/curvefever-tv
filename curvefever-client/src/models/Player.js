@@ -19,19 +19,49 @@ export class Player {
 
     draw(ctx) {
         this.drawTrail(ctx);
+        this.drawPlayer(ctx);
+        this.drawName(ctx);
 
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-
-        ctx.fillStyle = "#000000";
-        ctx.font = "14px Arial";
-        ctx.fillText(this.name, this.x - 12, this.y - 12);
         if (!this.isFloating) {
             this.trail.push({ x: this.x, y: this.y });
         }
     }
+
+    drawPlayer(ctx) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+    }
+
+    drawName(ctx) {
+        ctx.font = "14px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        // Text shadow for visibility
+        ctx.fillStyle = "#000000";
+        ctx.fillText(this.name, this.x + 1, this.y - this.radius - 11 + 1);
+
+        ctx.fillStyle = "#ffffff";
+        ctx.fillText(this.name, this.x, this.y - this.radius - 11);
+    }
+
+    // draw(ctx) {
+    //     this.drawTrail(ctx);
+
+    //     ctx.beginPath();
+    //     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    //     ctx.fillStyle = this.color;
+    //     ctx.fill();
+
+    //     ctx.fillStyle = "#000000";
+    //     ctx.font = "14px Arial";
+    //     ctx.fillText(this.name, this.x - 12, this.y - 12);
+    //     if (!this.isFloating) {
+    //         this.trail.push({ x: this.x, y: this.y });
+    //     }
+    // }
 
     drawTrail(ctx) {
         if (this.trail.length < 2) return;

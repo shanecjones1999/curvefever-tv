@@ -5,7 +5,6 @@ const GameCanvas = ({ players }) => {
     const animationFrameIdRef = useRef(null);
     const playersRef = useRef(players);
 
-    // Keep the latest players in a ref so we don't retrigger the effect
     useEffect(() => {
         playersRef.current = players;
     }, [players]);
@@ -16,29 +15,26 @@ const GameCanvas = ({ players }) => {
 
         const draw = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Use latest players from ref
-            playersRef.current.forEach((player) => {
-                player.draw(ctx);
-            });
-
+            playersRef.current.forEach((player) => player.draw(ctx));
             animationFrameIdRef.current = requestAnimationFrame(draw);
         };
 
-        draw(); // Initial call
+        draw();
 
         return () => {
             cancelAnimationFrame(animationFrameIdRef.current);
         };
-    }, []); // Run once on mount — don't depend on players
+    }, []);
 
     return (
-        <canvas
-            ref={canvasRef}
-            width={800}
-            height={600}
-            style={{ border: "1px solid #000", marginTop: "20px" }}
-        />
+        <div className="flex justify-center mt-6">
+            <canvas
+                ref={canvasRef}
+                width={800}
+                height={600}
+                className="border border-white shadow-lg bg-gray-800"
+            />
+        </div>
     );
 };
 
@@ -48,30 +44,33 @@ export default GameCanvas;
 
 // const GameCanvas = ({ players }) => {
 //     const canvasRef = useRef(null);
-//     const animationFrameIdRef = useRef(null); // Store animation frame ID
+//     const animationFrameIdRef = useRef(null);
+//     const playersRef = useRef(players);
+
+//     useEffect(() => {
+//         playersRef.current = players;
+//     }, [players]);
 
 //     useEffect(() => {
 //         const canvas = canvasRef.current;
 //         const ctx = canvas.getContext("2d");
 
-//         // Function to draw players
-//         const drawPlayers = () => {
-//             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+//         const draw = () => {
+//             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-//             players.forEach((player) => {
+//             playersRef.current.forEach((player) => {
 //                 player.draw(ctx);
 //             });
 
-//             // Request the next animation frame
-//             animationFrameIdRef.current = requestAnimationFrame(drawPlayers);
+//             animationFrameIdRef.current = requestAnimationFrame(draw);
 //         };
 
-//         drawPlayers(); // Start the animation loop
+//         draw();
 
 //         return () => {
-//             cancelAnimationFrame(animationFrameIdRef.current); // Stop animation on unmount
+//             cancelAnimationFrame(animationFrameIdRef.current);
 //         };
-//     }, [players]); // Depend on `players`, so the loop restarts when they change
+//     }, []);
 
 //     return (
 //         <canvas
@@ -79,7 +78,7 @@ export default GameCanvas;
 //             width={800}
 //             height={600}
 //             style={{ border: "1px solid #000", marginTop: "20px" }}
-//         ></canvas>
+//         />
 //     );
 // };
 

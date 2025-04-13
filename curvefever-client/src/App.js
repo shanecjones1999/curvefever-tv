@@ -67,24 +67,24 @@ const App = () => {
     }, []);
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-8 text-center">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 p-8 text-center">
             {!view ? (
                 <div className="space-y-6">
-                    <h1 className="text-3xl font-bold text-gray-800">
-                        Welcome to Curvefever TV
+                    <h1 className="text-3xl font-bold text-gray-100">
+                        curvefever.tv
                     </h1>
                     <div className="space-x-4">
                         <button
                             onClick={handleTVClick}
                             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow"
                         >
-                            I'm the TV
+                            Create Room
                         </button>
                         <button
                             onClick={() => setView("player")}
                             className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow"
                         >
-                            Join as Player
+                            Join Room
                         </button>
                     </div>
                 </div>
