@@ -88,8 +88,10 @@ const PlayerScreen = ({
 
     if (gameStarted) {
         return (
-            <div style={styles.gameContainer}>
-                <h2>Game has started! Get ready...</h2>
+            <div className="h-screen flex flex-col justify-center items-center bg-[#282c34] text-white text-center px-4">
+                <h2 className="text-2xl font-semibold mb-4">
+                    Game has started! Get ready...
+                </h2>
                 <PlayerControls ws={ws} playerId={playerId} />
             </div>
         );
@@ -97,77 +99,42 @@ const PlayerScreen = ({
 
     if (connected) {
         return (
-            <div style={styles.gameContainer}>
-                <h3>Connected as {name}</h3>
-                <p>Waiting for the host to start the game...</p>
+            <div className="h-screen flex flex-col justify-center items-center bg-[#282c34] text-white text-center px-4">
+                <h3 className="text-xl font-medium mb-2">
+                    Connected as {name}
+                </h3>
+                <p className="text-base">
+                    Waiting for the host to start the game...
+                </p>
             </div>
         );
     }
 
     return (
-        <div style={styles.container}>
-            <h2 style={styles.heading}>Join Game</h2>
+        <div className="h-screen flex flex-col justify-center items-center bg-[#282c34] text-white px-4">
+            <h2 className="text-2xl font-bold mb-6">Join Game</h2>
             <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter your name"
-                style={styles.input}
+                className="mb-4 p-3 w-64 rounded-md text-black focus:outline-none"
             />
             <input
                 type="text"
                 value={roomCode}
                 onChange={(e) => setRoomCode(e.target.value)}
                 placeholder="Enter room code"
-                style={styles.input}
+                className="mb-4 p-3 w-64 rounded-md text-black focus:outline-none"
             />
-            <button style={styles.button} onClick={connectWebSocket}>
+            <button
+                onClick={connectWebSocket}
+                className="bg-blue-600 hover:bg-blue-700 text-white text-lg font-medium py-3 px-6 rounded-md transition duration-300"
+            >
                 Join Game
             </button>
         </div>
     );
-};
-
-const styles = {
-    container: {
-        height: "100vh",
-        background: "linear-gradient(135deg, #1f4037, #99f2c8)",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-        color: "#fff",
-    },
-    gameContainer: {
-        textAlign: "center",
-        padding: "40px",
-        color: "#fff",
-    },
-    heading: {
-        marginBottom: "30px",
-        fontSize: "28px",
-        fontWeight: "bold",
-    },
-    input: {
-        padding: "12px 16px",
-        marginBottom: "20px",
-        fontSize: "16px",
-        borderRadius: "8px",
-        border: "none",
-        width: "250px",
-        outline: "none",
-    },
-    button: {
-        padding: "14px 28px",
-        fontSize: "18px",
-        backgroundColor: "#007bff",
-        color: "#fff",
-        border: "none",
-        borderRadius: "8px",
-        cursor: "pointer",
-        transition: "all 0.3s ease",
-    },
 };
 
 export default PlayerScreen;
@@ -189,7 +156,6 @@ export default PlayerScreen;
 //     const [ws, setWs] = useState(initialWs || null);
 //     const [playerId, setPlayerId] = useState(initialPlayerId || null);
 
-//     // Handle messages only if ws is newly created here
 //     useEffect(() => {
 //         if (!ws && connected) return;
 
@@ -263,7 +229,7 @@ export default PlayerScreen;
 
 //     if (gameStarted) {
 //         return (
-//             <div>
+//             <div style={styles.gameContainer}>
 //                 <h2>Game has started! Get ready...</h2>
 //                 <PlayerControls ws={ws} playerId={playerId} />
 //             </div>
@@ -271,26 +237,201 @@ export default PlayerScreen;
 //     }
 
 //     if (connected) {
-//         return <h3>Connected as {name}</h3>;
+//         return (
+//             <div style={styles.gameContainer}>
+//                 <h3>Connected as {name}</h3>
+//                 <p>Waiting for the host to start the game...</p>
+//             </div>
+//         );
 //     }
 
 //     return (
-//         <div style={{ textAlign: "center", marginTop: "50px" }}>
+//         <div style={styles.container}>
+//             <h2 style={styles.heading}>Join Game</h2>
 //             <input
 //                 type="text"
 //                 value={name}
 //                 onChange={(e) => setName(e.target.value)}
 //                 placeholder="Enter your name"
+//                 style={styles.input}
 //             />
 //             <input
 //                 type="text"
 //                 value={roomCode}
 //                 onChange={(e) => setRoomCode(e.target.value)}
 //                 placeholder="Enter room code"
+//                 style={styles.input}
 //             />
-//             <button onClick={connectWebSocket}>Join Game</button>
+//             <button style={styles.button} onClick={connectWebSocket}>
+//                 Join Game
+//             </button>
 //         </div>
 //     );
 // };
 
+// const styles = {
+//     container: {
+//         height: "100vh",
+//         background: "linear-gradient(135deg, #1f4037, #99f2c8)",
+//         display: "flex",
+//         flexDirection: "column",
+//         justifyContent: "center",
+//         alignItems: "center",
+//         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+//         color: "#fff",
+//     },
+//     gameContainer: {
+//         textAlign: "center",
+//         padding: "40px",
+//         color: "#fff",
+//     },
+//     heading: {
+//         marginBottom: "30px",
+//         fontSize: "28px",
+//         fontWeight: "bold",
+//     },
+//     input: {
+//         padding: "12px 16px",
+//         marginBottom: "20px",
+//         fontSize: "16px",
+//         borderRadius: "8px",
+//         border: "none",
+//         width: "250px",
+//         outline: "none",
+//     },
+//     button: {
+//         padding: "14px 28px",
+//         fontSize: "18px",
+//         backgroundColor: "#007bff",
+//         color: "#fff",
+//         border: "none",
+//         borderRadius: "8px",
+//         cursor: "pointer",
+//         transition: "all 0.3s ease",
+//     },
+// };
+
 // export default PlayerScreen;
+
+// // import React, { useState, useEffect } from "react";
+// // import PlayerControls from "./PlayerControls";
+
+// // const PlayerScreen = ({
+// //     ws: initialWs,
+// //     playerId: initialPlayerId,
+// //     playerName: initialName,
+// //     roomCode: initialRoomCode,
+// //     gameStarted: initialGameStarted,
+// // }) => {
+// //     const [name, setName] = useState(initialName || "");
+// //     const [connected, setConnected] = useState(!!initialWs);
+// //     const [gameStarted, setGameStarted] = useState(initialGameStarted || false);
+// //     const [roomCode, setRoomCode] = useState(initialRoomCode || "");
+// //     const [ws, setWs] = useState(initialWs || null);
+// //     const [playerId, setPlayerId] = useState(initialPlayerId || null);
+
+// //     // Handle messages only if ws is newly created here
+// //     useEffect(() => {
+// //         if (!ws && connected) return;
+
+// //         if (ws && !initialWs) {
+// //             ws.onmessage = (event) => {
+// //                 const data = JSON.parse(event.data);
+// //                 if (data.type === "game_start") {
+// //                     localStorage.setItem(
+// //                         "playerInfo",
+// //                         JSON.stringify({
+// //                             playerId: playerId,
+// //                             playerName: name,
+// //                             roomCode: roomCode,
+// //                         })
+// //                     );
+// //                     setGameStarted(true);
+// //                 } else if (data.type === "player_info") {
+// //                     setPlayerId(data.playerId);
+// //                     setConnected(true);
+// //                 } else if (data.type === "invalid_room_code") {
+// //                     alert("The entered room code is invalid.");
+// //                 }
+// //             };
+
+// //             ws.onclose = () => {
+// //                 setConnected(false);
+// //             };
+// //         }
+// //     }, [ws, connected, name, roomCode, playerId, initialWs]);
+
+// //     const connectWebSocket = () => {
+// //         if (name.trim() === "" || roomCode.trim() === "") return;
+
+// //         const newWs = new WebSocket(
+// //             `ws://localhost:8000/ws/${roomCode}/player`
+// //         );
+
+// //         newWs.onopen = () => {
+// //             newWs.send(
+// //                 JSON.stringify({
+// //                     type: "join",
+// //                     name: name,
+// //                 })
+// //             );
+// //         };
+
+// //         newWs.onmessage = (event) => {
+// //             const data = JSON.parse(event.data);
+// //             if (data.type === "game_start") {
+// //                 localStorage.setItem(
+// //                     "playerInfo",
+// //                     JSON.stringify({
+// //                         playerId: data.playerId,
+// //                         playerName: name,
+// //                         roomCode: roomCode,
+// //                     })
+// //                 );
+// //                 setGameStarted(true);
+// //             } else if (data.type === "player_info") {
+// //                 setPlayerId(data.playerId);
+// //                 setConnected(true);
+// //             }
+// //         };
+
+// //         newWs.onclose = () => {
+// //             setConnected(false);
+// //         };
+
+// //         setWs(newWs);
+// //     };
+
+// //     if (gameStarted) {
+// //         return (
+// //             <div>
+// //                 <h2>Game has started! Get ready...</h2>
+// //                 <PlayerControls ws={ws} playerId={playerId} />
+// //             </div>
+// //         );
+// //     }
+
+// //     if (connected) {
+// //         return <h3>Connected as {name}</h3>;
+// //     }
+
+// //     return (
+// //         <div style={{ textAlign: "center", marginTop: "50px" }}>
+// //             <input
+// //                 type="text"
+// //                 value={name}
+// //                 onChange={(e) => setName(e.target.value)}
+// //                 placeholder="Enter your name"
+// //             />
+// //             <input
+// //                 type="text"
+// //                 value={roomCode}
+// //                 onChange={(e) => setRoomCode(e.target.value)}
+// //                 placeholder="Enter room code"
+// //             />
+// //             <button onClick={connectWebSocket}>Join Game</button>
+// //         </div>
+// //     );
+// // };
+
+// // export default PlayerScreen;
