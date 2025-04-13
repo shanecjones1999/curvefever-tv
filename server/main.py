@@ -109,7 +109,7 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
             game = game_manager.get_game(room_code)
             if not game:
                 return
-            game.b
+            await game.broadcast_tv_disconnect()
 
             game_manager.remove_game(room_code)
         else:
