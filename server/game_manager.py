@@ -14,10 +14,8 @@ class GameManager:
         self.games[room_code] = Game(room_code)
         return self.games[room_code]
 
-    def get_game(self, room_code) -> Game:
-        if room_code not in self.games:
-            raise KeyError
-        return self.games[room_code]
+    def get_game(self, room_code) -> Game | None:
+        return self.games.get(room_code, None)
 
     def remove_game(self, room_code: str) -> None:
         if room_code not in self.games:

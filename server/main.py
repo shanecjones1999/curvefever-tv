@@ -41,6 +41,8 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
 
     if client_type == "tv":
         game = game_manager.get_game(room_code)
+        if not game:
+            raise Exception("Missing game")
         tv_client = TvClient(websocket)
         game.add_tv_client(tv_client)
 
@@ -60,6 +62,8 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
                         "#{:06x}".format(random.randint(0, 0xFFFFFF)))
 
                     game = game_manager.get_game(room_code)
+                    if not game:
+                        raise Exception("Missing game")
                     game.add_player(player, websocket)
                     await broadcast_lobby(room_code)
 
@@ -73,6 +77,10 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
                         player_id = message["player_id"]
                         room_code = message["room_code"]
                         game = game_manager.get_game(room_code)
+                        if not game:
+                            await websocket.send_json(
+                                {"type": "reconnect_failed"})
+                            return
                         if player_id in game.players:
                             player = game.players[player_id]
                             game.sockets[player_id] = websocket
@@ -87,6 +95,8 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
 
                 elif message["type"] == "move":
                     game = game_manager.get_game(room_code)
+                    if not game:
+                        raise Exception("Missing game")
                     player_id = message["playerId"]
                     game.update_player_direction(player_id,
                                                  message['state']['left'],
@@ -96,6 +106,11 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
         # TODO: Enhance logic
         print("Disconnecting websocket")
         if client_type == "tv":
+            game = game_manager.get_game(room_code)
+            if not game:
+                return
+            game.b
+
             game_manager.remove_game(room_code)
         else:
             await broadcast_lobby(room_code)
@@ -104,13 +119,18 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
 async def broadcast_lobby(room_code: str):
     """Send the updated player list to the TV."""
     game = game_manager.get_game(room_code)
+    if not game:
+        raise Exception("Missing game")
+    if game.started:
+        return
     await game.broadcast_lobby()
 
 
 async def start_game(room_code: str):
     """Send game start event to all players and TV."""
     game = game_manager.get_game(room_code)
-
+    if not game:
+        raise Exception("Missing game")
     await game.start_game()
 
     asyncio.create_task(game.game_loop())

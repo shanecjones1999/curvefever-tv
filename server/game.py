@@ -74,11 +74,12 @@ class Game:
         self.grid.clear()
 
         start_positions = self.generate_starting_positions(len(self.players))
-
-        for player in self.players.values():
+        tmp = 0
+        for player_id, player in self.players.items():
             player.reset()
-            player.x = 300
-            player.y = 300
+            player.x = start_positions[tmp][0]
+            player.y = start_positions[tmp][0]
+            tmp += 1
 
     def generate_starting_positions(self,
                                     num_players: int) -> List[Tuple[int, int]]:
@@ -172,7 +173,6 @@ class Game:
 
         nearby_points = self.grid.get_nearby_points(player.x, player.y)
         for point in nearby_points:
-            # Optional: skip player's own newest points
             if point.player_id == player.id and self._is_recent(point):
                 continue
 
@@ -189,3 +189,7 @@ class Game:
         dy = player.y - point.y
         distance_squared = dx * dx + dy * dy
         return distance_squared < player.radius**2
+
+    async def broadcast_tv_disconnect(self):
+        for socket in self.sockets.values():
+            await socket.send_json({"type": "tv_disconnect"})
