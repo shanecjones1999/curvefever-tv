@@ -34,6 +34,9 @@ const PlayerScreen = ({
                     setGameStarted(true);
                 } else if (data.type === "player_info") {
                     setPlayerId(data.playerId);
+                    setConnected(true);
+                } else if (data.type === "invalid_room_code") {
+                    alert("The entered room code is invalid.");
                 }
             };
 
@@ -57,7 +60,6 @@ const PlayerScreen = ({
                     name: name,
                 })
             );
-            setConnected(true);
         };
 
         newWs.onmessage = (event) => {
@@ -74,6 +76,7 @@ const PlayerScreen = ({
                 setGameStarted(true);
             } else if (data.type === "player_info") {
                 setPlayerId(data.playerId);
+                setConnected(true);
             }
         };
 

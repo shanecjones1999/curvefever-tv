@@ -60,6 +60,15 @@ const PlayerControls = ({ ws, playerId }) => {
 
     // Attach event listeners for keyboard events
     useEffect(() => {
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            if (data.type === "tv_disconnect") {
+                alert("The host (TV) has disconnected. The game will end.");
+                window.location.href = "/";
+            }
+        };
+
         window.addEventListener("keydown", handleKeyDown);
         window.addEventListener("keyup", handleKeyUp);
 

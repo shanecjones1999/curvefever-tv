@@ -30,6 +30,7 @@ class Game:
         self.game_over = False
         self.grid = SpatialHashGrid(cell_size=10)
         self.game_index = 0
+        self.loop_task = None
 
     def add_tv_client(self, tv_client: TvClient):
         if self.tv_client:
@@ -108,6 +109,8 @@ class Game:
 
         self.started = True
         self.start_round()
+
+        self.loop_task = asyncio.create_task(self.game_loop())
 
     async def end_round(self):
         await asyncio.sleep(3)

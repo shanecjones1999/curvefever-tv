@@ -39,6 +39,14 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
                              client_type: str):
     await websocket.accept()
 
+    game = game_manager.get_game(room_code)
+    if not game:
+        await websocket.send_json({
+            "type": "invalid_room_code",
+        })
+        await websocket.close()
+        return
+
     if client_type == "tv":
         game = game_manager.get_game(room_code)
         if not game:
@@ -63,7 +71,9 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
 
                     game = game_manager.get_game(room_code)
                     if not game:
-                        raise Exception("Missing game")
+                        await websocket.send_json(
+                            {"type": "invalid_room_code"})
+                        return
                     game.add_player(player, websocket)
                     await broadcast_lobby(room_code)
 
@@ -102,15 +112,35 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
                                                  message['state']['left'],
                                                  message['state']['right'])
 
+    # except WebSocketDisconnect:
+    #     # TODO: Enhance logic
+    #     print("Disconnecting websocket")
+    #     if client_type == "tv":
+    #         game = game_manager.get_game(room_code)
+    #         if not game:
+    #             return
+    #         await game.broadcast_tv_disconnect()
+
+    #         game_manager.remove_game(room_code)
+    #     else:
+    #         await broadcast_lobby(room_code)
+
     except WebSocketDisconnect:
-        # TODO: Enhance logic
         print("Disconnecting websocket")
         if client_type == "tv":
             game = game_manager.get_game(room_code)
             if not game:
                 return
-            await game.broadcast_tv_disconnect()
 
+            # Cancel the running loop task if it exists
+            if game.loop_task and not game.loop_task.done():
+                game.loop_task.cancel()
+                try:
+                    await game.loop_task  # clean cancellation
+                except asyncio.CancelledError:
+                    print(f"Game loop for room {room_code} cancelled.")
+
+            await game.broadcast_tv_disconnect()
             game_manager.remove_game(room_code)
         else:
             await broadcast_lobby(room_code)
@@ -119,10 +149,9 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
 async def broadcast_lobby(room_code: str):
     """Send the updated player list to the TV."""
     game = game_manager.get_game(room_code)
-    if not game:
-        raise Exception("Missing game")
-    if game.started:
+    if not game or game.started:
         return
+
     await game.broadcast_lobby()
 
 
@@ -132,5 +161,3 @@ async def start_game(room_code: str):
     if not game:
         raise Exception("Missing game")
     await game.start_game()
-
-    asyncio.create_task(game.game_loop())
