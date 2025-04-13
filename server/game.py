@@ -116,7 +116,7 @@ class Game:
         await asyncio.sleep(3)
         await self.tv_client.reset_round()
 
-        if self.round_number >= 3:
+        if self.round_number >= 20:
             await self.end_game()
         else:
             self.start_round()
@@ -191,7 +191,8 @@ class Game:
         dx = player.x - point.x
         dy = player.y - point.y
         distance_squared = dx * dx + dy * dy
-        return distance_squared < player.radius**2
+        return False
+        #return distance_squared < player.radius**2
 
     async def broadcast_tv_disconnect(self):
         for socket in self.sockets.values():
