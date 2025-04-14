@@ -110,6 +110,9 @@ class Game:
         self.started = True
         self.start_round()
 
+        # for socket in self.sockets.values():
+        #     await socket.send_json({"type": "eliminated"})
+
         self.loop_task = asyncio.create_task(self.game_loop())
 
     async def end_round(self):
@@ -183,7 +186,8 @@ class Game:
 
             if self.is_colliding(player, point):
                 player.eliminated = True
-                await self.sockets[player.id].send_json({"type": "eliminated"})
+                ws = self.sockets[player.id]
+                await ws.send_json({"type": "eliminated"})
                 break
 
     def _is_recent(self, point: TrailPoint, buffer=10):

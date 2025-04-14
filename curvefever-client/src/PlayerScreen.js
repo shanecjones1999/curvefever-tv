@@ -37,6 +37,10 @@ const PlayerScreen = ({
     //                 setConnected(true);
     //             } else if (data.type === "invalid_room_code") {
     //                 alert("The entered room code is invalid.");
+    //             } else if (data.type === "eliminated") {
+    //                 setEliminated(true);
+    //             } else if (data.type === "reset_round") {
+    //                 setEliminated(false);
     //             }
     //         };
 
@@ -48,6 +52,10 @@ const PlayerScreen = ({
 
     const connectWebSocket = () => {
         if (name.trim() === "" || roomCode.trim() === "") return;
+
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            return; // Already connected
+        }
 
         const newWs = new WebSocket(
             `ws://localhost:8000/ws/${roomCode}/player`

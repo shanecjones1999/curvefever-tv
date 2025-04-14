@@ -61,6 +61,7 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
             if client_type == "tv":
                 if message["type"] == "start_game":
                     await start_game(room_code)
+                    game = game_manager.get_game(room_code)
 
             elif client_type == "player":
                 if message["type"] == "join":
