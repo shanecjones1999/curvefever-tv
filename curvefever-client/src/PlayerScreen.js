@@ -14,36 +14,37 @@ const PlayerScreen = ({
     const [roomCode, setRoomCode] = useState(initialRoomCode || "");
     const [ws, setWs] = useState(initialWs || null);
     const [playerId, setPlayerId] = useState(initialPlayerId || null);
+    const [eliminated, setEliminated] = useState(false);
 
-    useEffect(() => {
-        if (!ws && connected) return;
+    // useEffect(() => {
+    //     if (!ws && connected) return;
 
-        if (ws && !initialWs) {
-            ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                if (data.type === "game_start") {
-                    localStorage.setItem(
-                        "playerInfo",
-                        JSON.stringify({
-                            playerId: playerId,
-                            playerName: name,
-                            roomCode: roomCode,
-                        })
-                    );
-                    setGameStarted(true);
-                } else if (data.type === "player_info") {
-                    setPlayerId(data.playerId);
-                    setConnected(true);
-                } else if (data.type === "invalid_room_code") {
-                    alert("The entered room code is invalid.");
-                }
-            };
+    //     if (ws && !initialWs) {
+    //         ws.onmessage = (event) => {
+    //             const data = JSON.parse(event.data);
+    //             if (data.type === "game_start") {
+    //                 localStorage.setItem(
+    //                     "playerInfo",
+    //                     JSON.stringify({
+    //                         playerId: playerId,
+    //                         playerName: name,
+    //                         roomCode: roomCode,
+    //                     })
+    //                 );
+    //                 setGameStarted(true);
+    //             } else if (data.type === "player_info") {
+    //                 setPlayerId(data.playerId);
+    //                 setConnected(true);
+    //             } else if (data.type === "invalid_room_code") {
+    //                 alert("The entered room code is invalid.");
+    //             }
+    //         };
 
-            ws.onclose = () => {
-                setConnected(false);
-            };
-        }
-    }, [ws, connected, name, roomCode, playerId, initialWs]);
+    //         ws.onclose = () => {
+    //             setConnected(false);
+    //         };
+    //     }
+    // }, [ws, connected, name, roomCode, playerId, initialWs]);
 
     const connectWebSocket = () => {
         if (name.trim() === "" || roomCode.trim() === "") return;
@@ -76,6 +77,12 @@ const PlayerScreen = ({
             } else if (data.type === "player_info") {
                 setPlayerId(data.playerId);
                 setConnected(true);
+            } else if (data.type === "eliminated") {
+                setEliminated(true);
+            } else if (data.type === "reset_round") {
+                setEliminated(false);
+            } else if (data.type === "invalid_room_code") {
+                alert("The entered room code is invalid.");
             }
         };
 
@@ -88,9 +95,11 @@ const PlayerScreen = ({
 
     if (gameStarted) {
         return (
-            <div className="h-screen flex flex-col justify-center items-center bg-[#282c34] text-white text-center px-4">
+            <div className="h-screen flex flex-col justify-center items-center text-white text-center px-4">
                 <h2 className="text-2xl font-semibold mb-4">
-                    Game has started! Get ready...
+                    {eliminated
+                        ? "You crashed"
+                        : "Game has started... Don't crash!"}
                 </h2>
                 <PlayerControls ws={ws} playerId={playerId} />
             </div>
@@ -99,10 +108,8 @@ const PlayerScreen = ({
 
     if (connected) {
         return (
-            <div className="h-screen flex flex-col justify-center items-center bg-[#282c34] text-white text-center px-4">
-                <h3 className="text-xl font-medium mb-2">
-                    Connected as {name}
-                </h3>
+            <div className="h-screen flex flex-col justify-center items-center text-white text-center px-4">
+                <h3 className="text-4xl font-medium mb-2">Welcome {name}.</h3>
                 <p className="text-base">
                     Waiting for the host to start the game...
                 </p>

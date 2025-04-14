@@ -114,6 +114,8 @@ class Game:
 
     async def end_round(self):
         await asyncio.sleep(3)
+        for socket in self.sockets.values():
+            await socket.send_json({"type": "reset_round"})
         await self.tv_client.reset_round()
 
         if self.round_number >= 20:
@@ -133,7 +135,7 @@ class Game:
             self.update_player_positions()
 
             for player in self.players.values():
-                self.smart_check_collision(player)
+                await self.smart_check_collision(player)
 
             round_over = self.is_round_over()
             if round_over:
@@ -170,7 +172,7 @@ class Game:
         else:
             return eliminated_count >= len(self.players) - 1
 
-    def smart_check_collision(self, player: Player):
+    async def smart_check_collision(self, player: Player):
         if player.eliminated:
             return
 
@@ -181,6 +183,7 @@ class Game:
 
             if self.is_colliding(player, point):
                 player.eliminated = True
+                await self.sockets[player.id].send_json({"type": "eliminated"})
                 break
 
     def _is_recent(self, point: TrailPoint, buffer=10):
@@ -191,8 +194,8 @@ class Game:
         dx = player.x - point.x
         dy = player.y - point.y
         distance_squared = dx * dx + dy * dy
-        return False
-        #return distance_squared < player.radius**2
+        # return False
+        return distance_squared < player.radius**2
 
     async def broadcast_tv_disconnect(self):
         for socket in self.sockets.values():

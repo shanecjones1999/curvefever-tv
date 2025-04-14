@@ -11,10 +11,14 @@ const App = () => {
     const [gameStarted, setGameStarted] = useState(false);
 
     const handleTVClick = async () => {
-        const response = await fetch("http://localhost:8000/get_room_code");
-        const data = await response.json();
-        setRoomCode(data.room_code);
-        setView("tv");
+        try {
+            const response = await fetch("http://localhost:8000/get_room_code");
+            const data = await response.json();
+            setRoomCode(data.room_code);
+            setView("tv");
+        } catch (error) {
+            alert("Failed to create a room. Please try again later.");
+        }
     };
 
     useEffect(() => {
