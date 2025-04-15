@@ -12,7 +12,7 @@ const App = () => {
 
     const handleTVClick = async () => {
         try {
-            const response = await fetch("http://localhost:8000/get_room_code");
+            const response = await fetch("http://10.0.0.26:8000/get_room_code");
             const data = await response.json();
             setRoomCode(data.room_code);
             setView("tv");
@@ -28,7 +28,7 @@ const App = () => {
             const { roomCode, playerId, playerName } = savedPlayer;
 
             const newWs = new WebSocket(
-                `ws://localhost:8000/ws/${roomCode}/player`
+                `ws://10.0.0.26:8000/ws/${roomCode}/player`
             );
 
             newWs.onopen = () => {
@@ -122,7 +122,7 @@ export default App;
 //     const [gameStarted, setGameStarted] = useState(false);
 
 //     const handleTVClick = async () => {
-//         const response = await fetch("http://localhost:8000/get_room_code");
+//         const response = await fetch("http://10.0.0.26:8000/get_room_code");
 //         const data = await response.json();
 //         setRoomCode(data.room_code);
 //         setView("tv");
@@ -135,7 +135,7 @@ export default App;
 //             const { roomCode, playerId, playerName } = savedPlayer;
 
 //             const newWs = new WebSocket(
-//                 `ws://localhost:8000/ws/${roomCode}/player`
+//                 `ws://10.0.0.26:8000/ws/${roomCode}/player`
 //             );
 
 //             newWs.onopen = () => {

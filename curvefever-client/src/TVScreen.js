@@ -8,7 +8,7 @@ const TVScreen = ({ roomCode }) => {
     const [ws, setWs] = useState(null);
 
     useEffect(() => {
-        const ws = new WebSocket(`ws://localhost:8000/ws/${roomCode}/tv`);
+        const ws = new WebSocket(`ws://10.0.0.26:8000/ws/${roomCode}/tv`);
         ws.onopen = () => setWs(ws);
 
         ws.onmessage = (event) => {
@@ -131,7 +131,7 @@ export default TVScreen;
 //     const [ws, setWs] = useState(null);
 
 //     useEffect(() => {
-//         const ws = new WebSocket(`ws://localhost:8000/ws/${roomCode}/tv`);
+//         const ws = new WebSocket(`ws://10.0.0.26:8000/ws/${roomCode}/tv`);
 
 //         ws.onopen = () => {
 //             setWs(ws);

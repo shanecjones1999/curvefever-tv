@@ -58,7 +58,7 @@ const PlayerScreen = ({
         }
 
         const newWs = new WebSocket(
-            `ws://localhost:8000/ws/${roomCode}/player`
+            `ws://10.0.0.26:8000/ws/${roomCode}/player`
         );
 
         newWs.onopen = () => {
@@ -91,6 +91,9 @@ const PlayerScreen = ({
                 setEliminated(false);
             } else if (data.type === "invalid_room_code") {
                 alert("The entered room code is invalid.");
+            } else if (data.type === "tv_disconnect") {
+                alert("The host (TV) has disconnected. The game will end.");
+                window.location.href = "/";
             }
         };
 
@@ -101,6 +104,18 @@ const PlayerScreen = ({
         setWs(newWs);
     };
 
+    const sendDirection = (left, right) => {
+        if (ws && playerId) {
+            ws.send(
+                JSON.stringify({
+                    type: "move",
+                    playerId,
+                    state: { left, right },
+                })
+            );
+        }
+    };
+
     if (gameStarted) {
         return (
             <div className="h-screen flex flex-col justify-center items-center text-white text-center px-4">
@@ -109,7 +124,10 @@ const PlayerScreen = ({
                         ? "You crashed"
                         : "Game has started... Don't crash!"}
                 </h2>
-                <PlayerControls ws={ws} playerId={playerId} />
+                <PlayerControls
+                    sendDirection={sendDirection}
+                    disabled={eliminated}
+                />
             </div>
         );
     }
