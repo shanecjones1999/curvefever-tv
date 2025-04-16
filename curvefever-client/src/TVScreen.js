@@ -6,6 +6,7 @@ const TVScreen = ({ roomCode }) => {
     const [players, setPlayers] = useState({});
     const [gameStarted, setGameStarted] = useState(false);
     const [ws, setWs] = useState(null);
+    const [countdown, setCountdown] = useState(null);
 
     useEffect(() => {
         const ws = new WebSocket(`ws://localhost:8000/ws/${roomCode}/tv`);
@@ -46,6 +47,10 @@ const TVScreen = ({ roomCode }) => {
                     Object.values(updated).forEach((p) => p.reset());
                     return updated;
                 });
+            } else if (data.type === "game_start") {
+                setGameStarted(true);
+            } else if (data.type === "countdown") {
+                setCountdown(data.seconds);
             }
         };
 
@@ -57,7 +62,6 @@ const TVScreen = ({ roomCode }) => {
     const startGame = () => {
         if (ws) {
             ws.send(JSON.stringify({ type: "start_game" }));
-            setGameStarted(true);
         }
     };
 
@@ -68,7 +72,16 @@ const TVScreen = ({ roomCode }) => {
                     <h2 className="text-3xl font-bold mb-6">
                         Game has started!
                     </h2>
+
                     <GameCanvas players={Object.values(players)} />
+                </div>
+            ) : countdown > 0 ? (
+                <div>
+                    {countdown !== null && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 text-white text-8xl font-bold">
+                            {countdown > 0 ? countdown : "GO!"}
+                        </div>
+                    )}
                 </div>
             ) : (
                 <div className="text-center max-w-xl w-full">
