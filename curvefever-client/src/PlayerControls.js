@@ -47,6 +47,13 @@ const PlayerControls = ({ sendDirection, disabled = false }) => {
         };
     }, [disabled]);
 
+    useEffect(() => {
+        if (disabled) {
+            setButtonState({ left: false, right: false });
+            sendDirection(false, false);
+        }
+    }, [disabled, sendDirection]);
+
     return (
         <div className="flex justify-center mt-6 gap-8">
             {["left", "right"].map((dir) => (
