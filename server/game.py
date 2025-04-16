@@ -99,6 +99,11 @@ class Game:
         self.reset_round()
 
     async def start_game(self):
+        for i in reversed(range(1, 4)):  # 3, 2, 1
+            for socket in self.sockets.values():
+                await socket.send_json({"type": "countdown", "seconds": i})
+                await asyncio.sleep(1)
+
         for player_id, socket in self.sockets.items():
             await socket.send_json({
                 "type": "game_start",
