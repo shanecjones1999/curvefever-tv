@@ -58,7 +58,7 @@ const PlayerScreen = ({
         }
 
         const newWs = new WebSocket(
-            `ws://10.0.0.26:8000/ws/${roomCode}/player`
+            `ws://localhost:8000/ws/${roomCode}/player`
         );
 
         newWs.onopen = () => {
