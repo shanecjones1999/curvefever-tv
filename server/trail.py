@@ -29,7 +29,7 @@ class Trail:
         self.segments: List[TrailSegment] = [TrailSegment()]
         # only create a gap if the length of the current segment is X
         self.gap_chance = gap_chance
-        self.is_floating = False
+        self.is_floating = True
         self.float_counter = 0
         self.float_duration = 20
 
@@ -40,10 +40,13 @@ class Trail:
         return self.get_last_segment().segment_length() >= 100
 
     def add_point(self, x: int, y: int, player_id: str, game_index: int):
+        if game_index <= 200:
+            self.is_floating = True
+            return
+
         if self.is_floating:
             self.float_counter -= 1
             if self.float_counter <= 0:
-                # Done floating, resume trail
                 self.is_floating = False
                 self.create_segment()
             return

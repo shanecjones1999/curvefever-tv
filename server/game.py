@@ -99,7 +99,7 @@ class Game:
         self.reset_round()
 
     async def start_game(self):
-        for i in reversed(range(0, 4)):  # 3, 2, 1
+        for i in reversed(range(1, 4)):  # 3, 2, 1
             for socket in self.sockets.values():
                 await socket.send_json({"type": "countdown", "seconds": i})
             await self.tv_client.socket.send_json({
@@ -182,7 +182,7 @@ class Game:
             return eliminated_count >= len(self.players) - 1
 
     async def smart_check_collision(self, player: Player):
-        if player.eliminated:
+        if player.eliminated or player.trail.is_floating:
             return
 
         nearby_points = self.grid.get_nearby_points(player.x, player.y)
