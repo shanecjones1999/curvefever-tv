@@ -132,7 +132,7 @@ const PlayerScreen = ({
             <button
                 onClick={() => setShouldConnect(true)}
                 disabled={!name || !roomCode || connected}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-lg font-medium py-3 px-6 rounded-md transition duration-300 disabled:opacity-50"
+                className="bg-blue-600 hover:bg-blue-700 active:scale-95 transform text-white text-lg font-medium py-3 px-6 rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 Join Game
             </button>
