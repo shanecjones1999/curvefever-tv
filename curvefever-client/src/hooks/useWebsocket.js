@@ -6,6 +6,9 @@ export function useWebSocket({ url, autoConnect = true }) {
     const [readyState, setReadyState] = useState(WebSocket.CLOSED);
 
     const connect = useCallback(() => {
+        if (!url) {
+            return;
+        }
         if (wsRef.current) wsRef.current.close();
 
         const socket = new WebSocket(url);

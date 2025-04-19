@@ -76,20 +76,27 @@ class Game:
 
         start_positions = self.generate_starting_positions(len(self.players))
         tmp = 0
-        for player_id, player in self.players.items():
+        for player in self.players.values():
             player.reset()
             player.x = start_positions[tmp][0]
             player.y = start_positions[tmp][0]
+            angle = random.uniform(0, 360)
+            player.angle = angle
             tmp += 1
 
     def generate_starting_positions(self,
                                     num_players: int) -> List[Tuple[int, int]]:
         positions = []
-        spacing = self.width / (num_players + 1)
 
-        for i in range(1, num_players + 1):
-            x = int(spacing * i - (4))
-            y = int(self.height * 0.8)  # Start near bottom
+        # Define margins
+        margin_x = 50  # Prevent players from being too close to the left or right
+        margin_y = 100  # Prevent players from being too close to the top or bottom
+
+        for i in range(num_players):
+            # Randomly choose x and y positions within the bounds, avoiding margins
+            x = random.randint(margin_x, self.width - margin_x)
+            y = random.randint(margin_y, self.height - margin_y)
+
             positions.append((x, y))
 
         return positions
