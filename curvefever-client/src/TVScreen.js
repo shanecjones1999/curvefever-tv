@@ -17,7 +17,6 @@ const TVScreen = ({ roomCode }) => {
             autoConnect: true,
         });
 
-    // Handle incoming messages
     useEffect(() => {
         if (!lastMessage) return;
 
