@@ -4,21 +4,27 @@ import { Player } from "./models/Player";
 import Scoreboard from "./Scoreboard";
 import { Copy } from "lucide-react";
 import WaitingMessage from "./hooks/waitingMessage";
+import { useWebSocket } from "./hooks/useWebSocket";
 
 const TVScreen = ({ roomCode }) => {
     const [players, setPlayers] = useState({});
     const [gameStarted, setGameStarted] = useState(false);
-    const [ws, setWs] = useState(null);
     const [countdown, setCountdown] = useState(null);
 
+    const { lastMessage, sendJson, readyState, connect, disconnect } =
+        useWebSocket({
+            url: `ws://localhost:8000/ws/${roomCode}/tv`,
+            autoConnect: true,
+        });
+
+    // Handle incoming messages
     useEffect(() => {
-        const ws = new WebSocket(`ws://localhost:8000/ws/${roomCode}/tv`);
-        ws.onopen = () => setWs(ws);
+        if (!lastMessage) return;
 
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
+        const data = lastMessage;
 
-            if (data.type === "lobby") {
+        switch (data.type) {
+            case "lobby":
                 const playerDict = {};
                 Object.entries(data.players).forEach(([id, playerData]) => {
                     playerDict[id] = new Player(
@@ -30,7 +36,8 @@ const TVScreen = ({ roomCode }) => {
                     );
                 });
                 setPlayers(playerDict);
-            } else if (data.type === "game_update") {
+                break;
+            case "game_update":
                 setPlayers((prev) => {
                     const updated = { ...prev };
                     Object.entries(data.players).forEach(([id, playerData]) => {
@@ -45,28 +52,27 @@ const TVScreen = ({ roomCode }) => {
                     });
                     return updated;
                 });
-            } else if (data.type === "reset_round") {
+                break;
+            case "reset_round":
                 setPlayers((prev) => {
                     const updated = { ...prev };
                     Object.values(updated).forEach((p) => p.reset());
                     return updated;
                 });
-            } else if (data.type === "game_start") {
+                break;
+            case "game_start":
                 setGameStarted(true);
-            } else if (data.type === "countdown") {
+                break;
+            case "countdown":
                 setCountdown(data.seconds);
-            }
-        };
-
-        return () => {
-            ws.close();
-        };
-    }, [roomCode]);
+                break;
+            default:
+                break;
+        }
+    }, [lastMessage]);
 
     const startGame = () => {
-        if (ws) {
-            ws.send(JSON.stringify({ type: "start_game" }));
-        }
+        sendJson({ type: "start_game" });
     };
 
     return (
@@ -108,9 +114,6 @@ const TVScreen = ({ roomCode }) => {
                         >
                             <Copy />
                         </button>
-                        <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 text-xs rounded bg-black text-white px-2 py-1 opacity-0 group-hover:opacity-100 transition pointer-events-none whitespace-nowrap">
-                            {"Copy to clipboard"}
-                        </div>
                     </h3>
 
                     <WaitingMessage />
