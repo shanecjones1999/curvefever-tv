@@ -71,7 +71,7 @@ const App = () => {
     }, []);
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 p-8 text-center">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-700 p-8 text-center">
             {!view ? (
                 <div className="space-y-6">
                     <h1 className="text-3xl font-bold text-gray-100">
