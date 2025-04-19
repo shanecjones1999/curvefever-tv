@@ -11,7 +11,7 @@ const WaitingMessage = () => {
     }, []);
 
     return (
-        <h3 className="mt-4 text-gray-400 italic text-lg">
+        <h3 className="mt-4 text-white text-lg animate-pulse">
             <span>Waiting for players</span>
             <span className="inline-block w-6 text-left">{dots}</span>
         </h3>

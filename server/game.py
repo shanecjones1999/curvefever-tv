@@ -88,12 +88,10 @@ class Game:
                                     num_players: int) -> List[Tuple[int, int]]:
         positions = []
 
-        # Define margins
-        margin_x = 50  # Prevent players from being too close to the left or right
-        margin_y = 100  # Prevent players from being too close to the top or bottom
+        margin_x = 100
+        margin_y = 100
 
         for i in range(num_players):
-            # Randomly choose x and y positions within the bounds, avoiding margins
             x = random.randint(margin_x, self.width - margin_x)
             y = random.randint(margin_y, self.height - margin_y)
 
