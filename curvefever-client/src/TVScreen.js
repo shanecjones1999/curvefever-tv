@@ -3,6 +3,7 @@ import GameCanvas from "./GameCanvas";
 import { Player } from "./models/Player";
 import Scoreboard from "./Scoreboard";
 import { Copy } from "lucide-react";
+import WaitingMessage from "./hooks/waitingMessage";
 
 const TVScreen = ({ roomCode }) => {
     const [players, setPlayers] = useState({});
@@ -112,9 +113,7 @@ const TVScreen = ({ roomCode }) => {
                         </div>
                     </h3>
 
-                    <h3 className="mt-4 text-gray-400 italic">
-                        Waiting for players...
-                    </h3>
+                    <WaitingMessage />
                     <ul className="my-6 space-y-2">
                         {Object.values(players).map((player) => (
                             <li
