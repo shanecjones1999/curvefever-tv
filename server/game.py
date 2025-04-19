@@ -146,11 +146,11 @@ class Game:
             for player in self.players.values():
                 await self.smart_check_collision(player)
 
+            await self.broadcast_game_state()
             round_over = self.is_round_over()
             if round_over:
-                await self.end_round()
 
-            await self.broadcast_game_state()
+                await self.end_round()
 
             await asyncio.sleep(self.frame_rate)
 
@@ -194,10 +194,13 @@ class Game:
                 player.eliminated = True
                 ws = self.sockets[player.id]
                 await ws.send_json({"type": "eliminated"})
-                await ws.send_json({
-                    "type": "player_info",
-                    "playerId": player.id,
-                })
+                for other_player in self.players.values():
+                    if player.id != other_player.id:
+                        other_player.score += 1
+                # await ws.send_json({
+                #     "type": "player_info",
+                #     "playerId": player.id,
+                # })
                 break
 
     def _is_recent(self, point: TrailPoint, buffer=10):

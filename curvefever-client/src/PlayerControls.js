@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 const PlayerControls = ({ sendDirection, disabled = false }) => {
     const [buttonState, setButtonState] = useState({
@@ -6,25 +6,31 @@ const PlayerControls = ({ sendDirection, disabled = false }) => {
         right: false,
     });
 
-    const handleStart = (dir, e) => {
-        if (disabled) return;
-        e?.preventDefault();
-        setButtonState((prevState) => {
-            const newState = { ...prevState, [dir]: true };
-            sendDirection(newState.left, newState.right);
-            return newState;
-        });
-    };
+    const handleStart = useCallback(
+        (dir, e) => {
+            if (disabled) return;
+            e?.preventDefault();
+            setButtonState((prevState) => {
+                const newState = { ...prevState, [dir]: true };
+                sendDirection(newState.left, newState.right);
+                return newState;
+            });
+        },
+        [disabled, sendDirection]
+    );
 
-    const handleEnd = (dir, e) => {
-        if (disabled) return;
-        e?.preventDefault();
-        setButtonState((prevState) => {
-            const newState = { ...prevState, [dir]: false };
-            sendDirection(newState.left, newState.right);
-            return newState;
-        });
-    };
+    const handleEnd = useCallback(
+        (dir, e) => {
+            if (disabled) return;
+            e?.preventDefault();
+            setButtonState((prevState) => {
+                const newState = { ...prevState, [dir]: false };
+                sendDirection(newState.left, newState.right);
+                return newState;
+            });
+        },
+        [disabled, sendDirection]
+    );
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -45,7 +51,7 @@ const PlayerControls = ({ sendDirection, disabled = false }) => {
             window.removeEventListener("keydown", handleKeyDown);
             window.removeEventListener("keyup", handleKeyUp);
         };
-    }, [disabled]);
+    }, [disabled, handleStart, handleEnd]);
 
     useEffect(() => {
         if (disabled) {

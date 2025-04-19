@@ -33,6 +33,7 @@ class Player:
             "color": self.color,
             "eliminated": self.eliminated,
             "is_floating": self.trail.is_floating,
+            "score": self.score,
         }
 
     def update_position(self, game_index: int):

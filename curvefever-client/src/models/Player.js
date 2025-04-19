@@ -9,12 +9,14 @@ export class Player {
         this.x = undefined;
         this.y = undefined;
         this.isFloating = false;
+        this.score = 0;
     }
 
-    update(x, y, isFloating) {
+    update(x, y, isFloating, score) {
         this.x = x;
         this.y = y;
         this.isFloating = isFloating;
+        this.score = score;
     }
 
     draw(ctx) {

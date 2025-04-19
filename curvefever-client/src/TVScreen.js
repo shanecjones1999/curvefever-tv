@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import GameCanvas from "./GameCanvas";
 import { Player } from "./models/Player";
+import Scoreboard from "./Scoreboard";
 
 const TVScreen = ({ roomCode }) => {
     const [players, setPlayers] = useState({});
@@ -35,7 +36,8 @@ const TVScreen = ({ roomCode }) => {
                             updated[id].update(
                                 playerData.x,
                                 playerData.y,
-                                playerData.is_floating
+                                playerData.is_floating,
+                                playerData.score
                             );
                         }
                     });
@@ -68,12 +70,16 @@ const TVScreen = ({ roomCode }) => {
     return (
         <div className="min-h-screen flex items-center justify-center text-white px-4">
             {gameStarted ? (
-                <div className="text-center w-full">
-                    <h2 className="text-3xl font-bold mb-6">
-                        Game has started!
-                    </h2>
+                <div className="flex h-screen w-full text-white">
+                    {/* Scoreboard on the left */}
+                    <div className="w-1/4 p-4 border-r border-gray-800">
+                        <Scoreboard players={Object.values(players)} />
+                    </div>
 
-                    <GameCanvas players={Object.values(players)} />
+                    {/* Game on the right */}
+                    <div className="flex-1 flex flex-col items-center justify-center p-4">
+                        <GameCanvas players={Object.values(players)} />
+                    </div>
                 </div>
             ) : countdown > 0 ? (
                 <div>
