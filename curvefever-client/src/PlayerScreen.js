@@ -51,6 +51,8 @@ const PlayerScreen = ({
             } else if (data.type === "reset_round") {
                 setEliminated(false);
             } else if (data.type === "invalid_room_code") {
+                setShouldConnect(false);
+                setWs(null);
                 alert("The entered room code is invalid.");
             } else if (data.type === "tv_disconnect") {
                 alert("The host (TV) has disconnected. The game will end.");
@@ -65,7 +67,7 @@ const PlayerScreen = ({
         };
 
         setWs(newWs);
-        setShouldConnect(false); // reset flag
+        setShouldConnect(false);
     }, [shouldConnect, name, roomCode, connected, ws]);
 
     const sendDirection = (left, right) => {
