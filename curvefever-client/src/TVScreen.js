@@ -72,7 +72,7 @@ const TVScreen = ({ roomCode }) => {
             {gameStarted ? (
                 <div className="flex h-screen w-full text-white">
                     {/* Scoreboard on the left */}
-                    <div className="w-1/4 p-4 border-r border-gray-800">
+                    <div className="w-1/4 p-4 border-r border-gray-800 flex flex-col justify-start">
                         <Scoreboard players={Object.values(players)} />
                     </div>
 

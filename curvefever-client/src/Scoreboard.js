@@ -8,8 +8,12 @@ const Scoreboard = ({ players }) => {
     return (
         <motion.div
             layout
-            className="w-64 p-4 bg-gray-700 rounded-lg space-y-4"
+            className="w-64 bg-gray-900 p-4 rounded-lg space-y-4"
         >
+            <h2 className="text-2xl font-bold text-white text-center">
+                Scoreboard
+            </h2>
+
             <AnimatePresence>
                 {sortedPlayers.map((player) => {
                     const percent = (player.score / maxScore) * 100;
