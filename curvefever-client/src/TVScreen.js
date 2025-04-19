@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import GameCanvas from "./GameCanvas";
 import { Player } from "./models/Player";
 import Scoreboard from "./Scoreboard";
+import { Copy } from "lucide-react";
 
 const TVScreen = ({ roomCode }) => {
     const [players, setPlayers] = useState({});
@@ -71,12 +72,10 @@ const TVScreen = ({ roomCode }) => {
         <div className="min-h-screen flex items-center justify-center text-white px-4">
             {gameStarted ? (
                 <div className="flex h-screen w-full text-white">
-                    {/* Scoreboard on the left */}
                     <div className="w-1/4 p-4 border-gray-800 flex flex-col justify-start mt-16">
                         <Scoreboard players={Object.values(players)} />
                     </div>
 
-                    {/* Game on the right */}
                     <div className="flex-1 flex flex-col items-center justify-center p-4">
                         <GameCanvas players={Object.values(players)} />
                     </div>
@@ -106,8 +105,11 @@ const TVScreen = ({ roomCode }) => {
                             className="ml-1 px-2 py-1 text-sm rounded bg-gray-700 hover:bg-gray-600 transition"
                             title="Copy to clipboard"
                         >
-                            📋
+                            <Copy />
                         </button>
+                        <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 text-xs rounded bg-black text-white px-2 py-1 opacity-0 group-hover:opacity-100 transition pointer-events-none whitespace-nowrap">
+                            {"Copy to clipboard"}
+                        </div>
                     </h3>
 
                     <h3 className="mt-4 text-gray-400 italic">
