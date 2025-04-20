@@ -18,6 +18,16 @@ const TVScreen = ({ roomCode }) => {
         });
 
     useEffect(() => {
+        const interval = setInterval(() => {
+            if (readyState === WebSocket.OPEN) {
+                sendJson(JSON.stringify({ type: "ping" }));
+            }
+        }, 10000); // every 10 seconds
+
+        return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
         if (!lastMessage) return;
 
         const data = lastMessage;
