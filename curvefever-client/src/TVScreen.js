@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import GameCanvas from "./GameCanvas";
 import { Player } from "./models/Player";
 import Scoreboard from "./Scoreboard";
-import { Copy } from "lucide-react";
+import { Copy, Undo2 } from "lucide-react";
 import WaitingMessage from "./hooks/waitingMessage";
 import { useWebSocket } from "./hooks/useWebSocket";
 
@@ -95,27 +95,38 @@ const TVScreen = ({ roomCode }) => {
                     )}
                 </div>
             ) : (
-                <div className="text-center max-w-xl w-full">
-                    <h2 className="text-3xl font-bold mb-2">Lobby</h2>
-                    <h3 className="text-xl mb-1 flex items-center gap-2">
-                        Room Code:{" "}
-                        <span className="font-mono tracking-widest bg-gray-800 px-3 py-1 rounded-md inline-block">
-                            {roomCode}
-                        </span>
+                <div className="min-h-screen flex flex-col items-center justify-start px-4 py-6 text-white">
+                    <div className="w-full max-w-xl flex justify-start mb-4">
                         <button
-                            onClick={() => {
-                                if (navigator.clipboard) {
-                                    navigator.clipboard.writeText(roomCode);
-                                }
-                            }}
-                            className="ml-1 px-2 py-1 text-sm rounded bg-gray-700 hover:bg-gray-600 transition"
-                            title="Copy to clipboard"
+                            onClick={() => window.location.reload()}
+                            className="flex items-center gap-1 text-sm px-3 py-2 rounded-md hover:bg-gray-700 transition"
                         >
-                            <Copy />
+                            <Undo2 className="w-4 h-4" />
+                            <span>Back</span>
                         </button>
-                    </h3>
+                    </div>
+                    <div className="w-full max-w-xl p-6 rounded-xl text-center">
+                        <h2 className="text-3xl font-bold mb-4">Lobby</h2>
+                        <h3 className="text-xl mb-1 flex items-center gap-2">
+                            Room Code:{" "}
+                            <span className="font-mono tracking-widest bg-gray-800 px-3 py-1 rounded-md inline-block">
+                                {roomCode}
+                            </span>
+                            <button
+                                onClick={() => {
+                                    if (navigator.clipboard) {
+                                        navigator.clipboard.writeText(roomCode);
+                                    }
+                                }}
+                                className="ml-1 px-2 py-1 text-sm rounded bg-gray-700 hover:bg-gray-600 transition"
+                                title="Copy to clipboard"
+                            >
+                                <Copy />
+                            </button>
+                        </h3>
 
-                    <WaitingMessage />
+                        <WaitingMessage />
+                    </div>
                     <ul className="my-6 space-y-2">
                         {Object.values(players).map((player) => (
                             <li

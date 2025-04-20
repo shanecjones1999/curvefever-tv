@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PlayerControls from "./PlayerControls";
 import { usePlayerSocket } from "./hooks/usePlayerSocket";
+import { Undo2 } from "lucide-react";
 
 const PlayerScreen = ({ cachedRoomCode = "", cachedPlayerId = null }) => {
     const [name, setName] = useState("");
@@ -143,35 +144,47 @@ const PlayerScreen = ({ cachedRoomCode = "", cachedPlayerId = null }) => {
     }
 
     return (
-        <div className="h-screen flex flex-col justify-center items-center text-white px-4">
-            <button
-                onClick={() => window.location.reload()}
-                className="mt-4 bg-red-500 hover:bg-red-600 active:scale-95 transform text-white text-lg font-medium py-2 px-4 rounded-md transition-all duration-200"
-            >
-                Back to Home
-            </button>
-            <h2 className="text-2xl font-bold mb-6">Join Game</h2>
-            <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Enter your name"
-                className="mb-4 p-3 w-64 rounded-md text-black focus:outline-none"
-            />
-            <input
-                type="text"
-                value={roomCode}
-                onChange={(e) => setRoomCode(e.target.value)}
-                placeholder="Enter room code"
-                className="mb-4 p-3 w-64 rounded-md text-black focus:outline-none"
-            />
-            <button
-                onClick={handleJoin}
-                disabled={!name || !roomCode || hasJoined}
-                className="bg-blue-600 hover:bg-blue-700 active:scale-95 transform text-white text-lg font-medium py-3 px-6 rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                Join Game
-            </button>
+        <div className="h-screen text-white px-4 py-6 flex flex-col">
+            {/* Top Bar */}
+            <div className="flex justify-start">
+                <button
+                    onClick={() => window.location.reload()}
+                    className="flex items-center gap-1 text-sm px-3 py-2 rounded-md hover:bg-gray-700 transition"
+                >
+                    <Undo2 className="w-4 h-4" />
+                    <span>Back</span>
+                </button>
+            </div>
+
+            {/* Centered Form */}
+            <div className="flex flex-grow items-center justify-center">
+                <div className="w-full max-w-sm bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <h2 className="text-2xl font-bold mb-6 text-center">
+                        Join Game
+                    </h2>
+                    <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Enter your name"
+                        className="mb-4 p-3 w-full rounded-md text-black focus:outline-none"
+                    />
+                    <input
+                        type="text"
+                        value={roomCode}
+                        onChange={(e) => setRoomCode(e.target.value)}
+                        placeholder="Enter room code"
+                        className="mb-6 p-3 w-full rounded-md text-black focus:outline-none"
+                    />
+                    <button
+                        onClick={handleJoin}
+                        disabled={!name || !roomCode || hasJoined}
+                        className="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 transform text-white text-lg font-medium py-3 px-6 rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Join Game
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };
