@@ -2,25 +2,30 @@ import React, { useEffect, useState } from "react";
 import PlayerControls from "./PlayerControls";
 import { usePlayerSocket } from "./hooks/usePlayerSocket";
 
-const PlayerScreen = () => {
+const PlayerScreen = ({ tRoomCode = "", tPlayerId = null }) => {
     const [name, setName] = useState("");
-    const [roomCode, setRoomCode] = useState("");
+    const [roomCode, setRoomCode] = useState(tRoomCode);
+    const [playerId, setPlayerId] = useState(tPlayerId);
     const [hasJoined, setHasJoined] = useState(false);
     const [eliminated, setEliminated] = useState(false);
     const [countdown, setCountdown] = useState(null);
-    const [wsUrl, setWsUrl] = useState(null); // this triggers socket connection
+    const [wsUrl, setWsUrl] = useState(null);
 
-    const {
-        playerId,
-        playerName,
-        gameStarted,
-        readyState,
-        lastMessage,
-        registerPlayer,
-        sendJson,
-    } = usePlayerSocket(wsUrl);
+    const { gameStarted, readyState, lastMessage, sendJson } =
+        usePlayerSocket(wsUrl);
 
     const connected = readyState === WebSocket.OPEN;
+
+    const registerPlayer = (id) => {
+        setPlayerId(id);
+        localStorage.setItem(
+            "playerInfo",
+            JSON.stringify({
+                playerId: id,
+                roomCode: wsUrl?.split("/")[4],
+            })
+        );
+    };
 
     useEffect(() => {
         if (!lastMessage) return;
@@ -106,9 +111,7 @@ const PlayerScreen = () => {
                         {countdown > 0 ? countdown : "GO!"}
                     </div>
                 )}
-                <h3 className="text-4xl font-medium mb-2">
-                    Welcome {playerName || name}.
-                </h3>
+                <h3 className="text-4xl font-medium mb-2">Welcome {name}.</h3>
                 <p className="text-base">
                     Waiting for the host to start the game...
                 </p>

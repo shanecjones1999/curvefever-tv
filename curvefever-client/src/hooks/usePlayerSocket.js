@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 export function usePlayerSocket(wsUrl) {
     const [readyState, setReadyState] = useState(WebSocket.CLOSED);
-    const [playerId, setPlayerId] = useState(null);
+    // const [playerId, setPlayerId] = useState(null);
     const [gameStarted, setGameStarted] = useState(false);
     const [lastMessage, setLastMessage] = useState(null);
 
@@ -49,23 +49,12 @@ export function usePlayerSocket(wsUrl) {
         }
     };
 
-    const registerPlayer = (id) => {
-        setPlayerId(id);
-        localStorage.setItem(
-            "playerInfo",
-            JSON.stringify({
-                playerId: id,
-                roomCode: wsUrl?.split("/")[4],
-            })
-        );
-    };
-
     return {
-        playerId,
+        // playerId,
         gameStarted,
         readyState,
         lastMessage,
-        registerPlayer,
+        // registerPlayer,
         sendJson,
     };
 }
