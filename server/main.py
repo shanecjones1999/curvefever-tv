@@ -34,6 +34,13 @@ async def get_room_code():
     return {"room_code": room_code}
 
 
+@app.get("/check_player")
+def check_player(room_code: str, player_id: str):
+    game = game_manager.get_game(room_code)
+    if game and game.started and game.players.get(player_id):
+        return {"active": True, "room_code": room_code, "player_id": player_id}
+
+
 @app.websocket("/ws/{room_code}/{client_type}")
 async def websocket_endpoint(websocket: WebSocket, room_code: str,
                              client_type: str):

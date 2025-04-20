@@ -105,52 +105,40 @@ const App = () => {
     };
 
     useEffect(() => {
-        const stored = localStorage.getItem("playerInfo");
-        if (stored) {
-            const savedPlayer = JSON.parse(stored);
-            const { roomCode, playerId, playerName } = savedPlayer;
+        const tryAutoReconnect = async () => {
+            const stored = localStorage.getItem("playerInfo");
+            if (!stored) return;
 
-            const newWs = new WebSocket(
-                `ws://localhost:8000/ws/${roomCode}/player`
-            );
+            const { roomCode, playerId, playerName } = JSON.parse(stored);
 
-            newWs.onopen = () => {
-                newWs.send(
-                    JSON.stringify({
-                        type: "reconnect",
-                        room_code: roomCode,
-                        player_id: playerId,
-                    })
+            try {
+                const response = await fetch(
+                    `http://localhost:8000/check_player?room_code=${roomCode}&player_id=${playerId}`
                 );
-            };
+                if (!response.ok) {
+                    localStorage.removeItem("playerInfo");
+                    // throw new Error("No active game found");
+                }
 
-            newWs.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-
-                if (data.type === "reconnect_success") {
-                    console.log("Reconnected successfully:", data.player);
-                    setView("player");
+                const data = await response.json();
+                if (data.active) {
+                    // Player is in a live game; proceed with reconnect
                     setRoomCode(roomCode);
                     setPlayerId(playerId);
                     setPlayerName(playerName);
-                    setWs(newWs);
-                    setGameStarted(true);
-                } else if (data.type === "reconnect_failed") {
-                    console.warn("Failed to reconnect. Clearing saved data.");
+                    setGameStarted(data.game_started); // or true if appropriate
+                    setView("player");
+                } else {
+                    // Cleanup if game no longer exists
                     localStorage.removeItem("playerInfo");
-                } else if (data.type === "game_start") {
-                    setGameStarted(true);
                 }
-            };
+            } catch (err) {
+                console.warn("Auto-reconnect failed:", err);
+                localStorage.removeItem("playerInfo");
+            }
+        };
 
-            newWs.onerror = (e) => {
-                console.error("WebSocket error:", e);
-            };
-
-            return () => {
-                newWs.close();
-            };
-        }
+        tryAutoReconnect();
     }, []);
 
     return (
@@ -178,13 +166,7 @@ const App = () => {
             ) : view === "tv" ? (
                 <TVScreen roomCode={roomCode} />
             ) : (
-                <PlayerScreen
-                // ws={ws}
-                // playerId={playerId}
-                // playerName={playerName}
-                // roomCode={roomCode}
-                // gameStarted={gameStarted}
-                />
+                <PlayerScreen playerId={playerId} roomCode={roomCode} />
             )}
         </div>
     );

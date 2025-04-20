@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useWebSocket } from "./useWebSocket";
 
-export function usePlayerSocket(roomCode) {
+export function usePlayerSocket(roomCode, initialPlayerId) {
     const [playerId, setPlayerId] = useState(null);
     const [playerName, setPlayerName] = useState("");
     const [gameStarted, setGameStarted] = useState(false);
@@ -70,7 +70,6 @@ export function usePlayerSocket(roomCode) {
                 "playerInfo",
                 JSON.stringify({
                     playerId: id,
-                    playerName: name,
                     roomCode,
                 })
             );
