@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import PlayerControls from "./PlayerControls";
 import { usePlayerSocket } from "./hooks/usePlayerSocket";
 
-const PlayerScreen = ({ tRoomCode = "", tPlayerId = null }) => {
+const PlayerScreen = ({ cachedRoomCode = "", cachedPlayerId = null }) => {
     const [name, setName] = useState("");
-    const [roomCode, setRoomCode] = useState(tRoomCode);
-    const [playerId, setPlayerId] = useState(tPlayerId);
+    const [roomCode, setRoomCode] = useState(cachedRoomCode);
+    const [playerId, setPlayerId] = useState(cachedPlayerId);
     const [hasJoined, setHasJoined] = useState(false);
     const [eliminated, setEliminated] = useState(false);
     const [countdown, setCountdown] = useState(null);

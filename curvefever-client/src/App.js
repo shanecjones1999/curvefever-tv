@@ -88,10 +88,7 @@ import PlayerScreen from "./PlayerScreen";
 const App = () => {
     const [view, setView] = useState("");
     const [roomCode, setRoomCode] = useState("");
-    const [ws, setWs] = useState(null);
     const [playerId, setPlayerId] = useState(null);
-    const [playerName, setPlayerName] = useState(null);
-    const [gameStarted, setGameStarted] = useState(false);
 
     const handleTVClick = async () => {
         try {
@@ -109,7 +106,7 @@ const App = () => {
             const stored = localStorage.getItem("playerInfo");
             if (!stored) return;
 
-            const { roomCode, playerId, playerName } = JSON.parse(stored);
+            const { roomCode, playerId } = JSON.parse(stored);
 
             try {
                 const response = await fetch(
@@ -125,8 +122,6 @@ const App = () => {
                     // Player is in a live game; proceed with reconnect
                     setRoomCode(roomCode);
                     setPlayerId(playerId);
-                    setPlayerName(playerName);
-                    setGameStarted(data.game_started); // or true if appropriate
                     setView("player");
                 } else {
                     // Cleanup if game no longer exists
@@ -166,7 +161,10 @@ const App = () => {
             ) : view === "tv" ? (
                 <TVScreen roomCode={roomCode} />
             ) : (
-                <PlayerScreen playerId={playerId} roomCode={roomCode} />
+                <PlayerScreen
+                    cachedRoomCode={roomCode}
+                    cachedPlayerId={playerId}
+                />
             )}
         </div>
     );
