@@ -10,9 +10,9 @@ const PlayerScreen = ({ cachedRoomCode = "", cachedPlayerId = null }) => {
     const [eliminated, setEliminated] = useState(false);
     const [countdown, setCountdown] = useState(null);
     const [wsUrl, setWsUrl] = useState(null);
+    const [gameStarted, setGameStarted] = useState(false);
 
-    const { gameStarted, readyState, lastMessage, sendJson } =
-        usePlayerSocket(wsUrl);
+    const { readyState, lastMessage, sendJson } = usePlayerSocket(wsUrl);
 
     const connected = readyState === WebSocket.OPEN;
 
@@ -54,10 +54,35 @@ const PlayerScreen = ({ cachedRoomCode = "", cachedPlayerId = null }) => {
             case "countdown":
                 setCountdown(lastMessage.seconds);
                 break;
+            case "reconnect_success":
+                setGameStarted(true);
+                break;
+            case "game_start":
+                setGameStarted(true);
+                break;
             default:
                 break;
         }
     }, [lastMessage, name, registerPlayer]);
+
+    useEffect(() => {
+        if (
+            //readyState === WebSocket.OPEN &&
+            cachedRoomCode &&
+            cachedPlayerId &&
+            !hasJoined &&
+            !wsUrl
+        ) {
+            const url = `ws://localhost:8000/ws/${cachedRoomCode}/player`;
+            setWsUrl(url);
+            sendJson({
+                type: "reconnect",
+                player_id: cachedPlayerId,
+                room_code: roomCode,
+            });
+            // Note: setting wsUrl will re-trigger the socket hook
+        }
+    }, [readyState, cachedRoomCode, cachedPlayerId, hasJoined, wsUrl]);
 
     const handleJoin = async () => {
         if (!name || !roomCode || hasJoined) return;

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 export function usePlayerSocket(wsUrl) {
     const [readyState, setReadyState] = useState(WebSocket.CLOSED);
     // const [playerId, setPlayerId] = useState(null);
-    const [gameStarted, setGameStarted] = useState(false);
+    // const [gameStarted, setGameStarted] = useState(false);
     const [lastMessage, setLastMessage] = useState(null);
 
     const socketRef = useRef(null);
@@ -28,9 +28,6 @@ export function usePlayerSocket(wsUrl) {
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             setLastMessage(data);
-            if (data.type === "game_start") {
-                setGameStarted(true);
-            }
         };
 
         socket.onclose = () => setReadyState(WebSocket.CLOSED);
@@ -51,7 +48,7 @@ export function usePlayerSocket(wsUrl) {
 
     return {
         // playerId,
-        gameStarted,
+        // gameStarted,
         readyState,
         lastMessage,
         // registerPlayer,
