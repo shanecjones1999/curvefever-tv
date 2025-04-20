@@ -36,6 +36,7 @@ const PlayerScreen = ({ cachedRoomCode = "", cachedPlayerId = null }) => {
                 break;
             case "game_start":
                 setEliminated(false);
+                setGameStarted(true);
                 break;
             case "eliminated":
                 setEliminated(true);
@@ -55,9 +56,6 @@ const PlayerScreen = ({ cachedRoomCode = "", cachedPlayerId = null }) => {
                 setCountdown(lastMessage.seconds);
                 break;
             case "reconnect_success":
-                setGameStarted(true);
-                break;
-            case "game_start":
                 setGameStarted(true);
                 break;
             default:
