@@ -1,92 +1,71 @@
-import { useEffect, useState, useCallback } from "react";
-import { useWebSocket } from "./useWebSocket";
+import { useEffect, useRef, useState } from "react";
 
-export function usePlayerSocket(roomCode, initialPlayerId) {
+export function usePlayerSocket(wsUrl) {
+    const [readyState, setReadyState] = useState(WebSocket.CLOSED);
     const [playerId, setPlayerId] = useState(null);
-    const [playerName, setPlayerName] = useState("");
     const [gameStarted, setGameStarted] = useState(false);
-    const [hasReconnected, setHasReconnected] = useState(false);
+    const [lastMessage, setLastMessage] = useState(null);
 
-    const shouldConnect = !!roomCode,
-        url = shouldConnect
-            ? `ws://localhost:8000/ws/${roomCode}/player`
-            : null;
-    const { lastMessage, readyState, sendJson, connect, disconnect } =
-        useWebSocket({
-            url: url,
-            autoConnect: true,
-        });
+    const socketRef = useRef(null);
+    const messageQueue = useRef([]);
 
-    // When the socket is open, try to reconnect using localStorage
     useEffect(() => {
-        if (readyState !== WebSocket.OPEN) return;
+        if (!wsUrl) return;
 
-        const stored = localStorage.getItem("playerInfo");
-        if (stored) {
-            const { roomCode: storedRoom, playerId: storedId } =
-                JSON.parse(stored);
-            if (storedRoom === roomCode) {
-                sendJson({
-                    type: "reconnect",
-                    room_code: roomCode,
-                    player_id: storedId,
-                });
-            }
-        }
-    }, [readyState, roomCode, sendJson]);
+        const socket = new WebSocket(wsUrl);
+        socketRef.current = socket;
 
-    // Handle incoming messages
-    useEffect(() => {
-        if (!lastMessage) return;
+        socket.onopen = () => {
+            setReadyState(WebSocket.OPEN);
 
-        switch (lastMessage.type) {
-            case "reconnect_success":
-                setPlayerId(lastMessage.player.id);
-                setPlayerName(lastMessage.player.name);
-                setGameStarted(true);
-                setHasReconnected(true);
-                break;
-            case "reconnect_failed":
-                console.warn("Reconnection failed");
-                localStorage.removeItem("playerInfo");
-                setPlayerId(null);
-                setPlayerName("");
-                setGameStarted(false);
-                break;
-            case "game_start":
-                setGameStarted(true);
-                break;
-            default:
-                break;
-        }
-    }, [lastMessage]);
-
-    // When joining for the first time
-    const registerPlayer = useCallback(
-        (id, name) => {
-            setPlayerId(id);
-            setPlayerName(name);
-            localStorage.setItem(
-                "playerInfo",
-                JSON.stringify({
-                    playerId: id,
-                    roomCode,
-                })
+            // Flush any queued messages
+            messageQueue.current.forEach((msg) =>
+                socket.send(JSON.stringify(msg))
             );
-        },
-        [roomCode]
-    );
+            messageQueue.current = [];
+        };
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            setLastMessage(data);
+            if (data.type === "game_start") {
+                setGameStarted(true);
+            }
+        };
+
+        socket.onclose = () => setReadyState(WebSocket.CLOSED);
+        socket.onerror = () => setReadyState(WebSocket.CLOSED);
+
+        return () => {
+            socket.close();
+        };
+    }, [wsUrl]);
+
+    const sendJson = (data) => {
+        if (socketRef.current?.readyState === WebSocket.OPEN) {
+            socketRef.current.send(JSON.stringify(data));
+        } else {
+            messageQueue.current.push(data);
+        }
+    };
+
+    const registerPlayer = (id) => {
+        setPlayerId(id);
+        localStorage.setItem(
+            "playerInfo",
+            JSON.stringify({
+                playerId: id,
+                roomCode: wsUrl?.split("/")[4],
+            })
+        );
+    };
 
     return {
         playerId,
-        playerName,
         gameStarted,
-        lastMessage,
         readyState,
-        hasReconnected,
+        lastMessage,
         registerPlayer,
         sendJson,
-        connect,
-        disconnect,
     };
 }

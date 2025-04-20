@@ -39,6 +39,15 @@ def check_player(room_code: str, player_id: str):
     game = game_manager.get_game(room_code)
     if game and game.started and game.players.get(player_id):
         return {"active": True, "room_code": room_code, "player_id": player_id}
+    return {"active": False}
+
+
+@app.get("/check_room")
+def check_player(room_code: str):
+    game = game_manager.get_game(room_code)
+    if game and not game.started:
+        return {"active": True, "room_code": room_code}
+    return {"active": False}
 
 
 @app.websocket("/ws/{room_code}/{client_type}")
