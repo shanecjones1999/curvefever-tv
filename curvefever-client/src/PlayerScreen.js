@@ -9,8 +9,8 @@ const PlayerScreen = ({ cachedRoomCode = "", cachedPlayerId = null }) => {
     const [playerId, setPlayerId] = useState(cachedPlayerId);
     const [hasJoined, setHasJoined] = useState(false);
     const [eliminated, setEliminated] = useState(false);
-    const [countdown, setCountdown] = useState(null);
     const [wsUrl, setWsUrl] = useState(null);
+    const [gameStarting, setGameStarting] = useState(false);
     const [gameStarted, setGameStarted] = useState(false);
 
     const { readyState, lastMessage, sendJson } = usePlayerSocket(wsUrl);
@@ -53,8 +53,8 @@ const PlayerScreen = ({ cachedRoomCode = "", cachedPlayerId = null }) => {
                 alert("The host (TV) has disconnected. The game will end.");
                 window.location.href = "/";
                 break;
-            case "countdown":
-                setCountdown(lastMessage.seconds);
+            case "game_starting":
+                setGameStarting(true);
                 break;
             case "reconnect_success":
                 setGameStarted(true);
@@ -130,15 +130,20 @@ const PlayerScreen = ({ cachedRoomCode = "", cachedPlayerId = null }) => {
     if (connected && hasJoined) {
         return (
             <div className="h-screen flex flex-col justify-center items-center text-white text-center px-4">
-                {countdown !== null && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 text-white text-8xl font-bold">
-                        {countdown > 0 ? countdown : "GO!"}
-                    </div>
+                {gameStarting ? (
+                    <h3 className="text-4xl font-medium mb-2">
+                        Get ready, {name}. The game is starting.
+                    </h3>
+                ) : (
+                    <>
+                        <h3 className="text-4xl font-medium mb-2">
+                            Welcome {name}.
+                        </h3>
+                        <p className="text-base">
+                            Waiting for the host to start the game...
+                        </p>
+                    </>
                 )}
-                <h3 className="text-4xl font-medium mb-2">Welcome {name}.</h3>
-                <p className="text-base">
-                    Waiting for the host to start the game...
-                </p>
             </div>
         );
     }

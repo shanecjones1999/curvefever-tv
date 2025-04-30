@@ -8,6 +8,7 @@ import { useWebSocket } from "./hooks/useWebSocket";
 
 const TVScreen = ({ roomCode }) => {
     const [players, setPlayers] = useState({});
+    const [gameStarting, setGameStarting] = useState(false);
     const [gameStarted, setGameStarted] = useState(false);
     const [countdown, setCountdown] = useState(null);
 
@@ -62,6 +63,9 @@ const TVScreen = ({ roomCode }) => {
             case "game_start":
                 setGameStarted(true);
                 break;
+            case "game_starting":
+                setGameStarting(true);
+                break;
             case "countdown":
                 setCountdown(data.seconds);
                 break;
@@ -76,23 +80,32 @@ const TVScreen = ({ roomCode }) => {
 
     return (
         <div className="min-h-screen flex items-center justify-center text-white px-4">
-            {gameStarted ? (
+            {gameStarting && !gameStarted ? (
+                <div className="h-screen w-full flex items-center justify-center text-white text-4xl font-bold">
+                    <div className="flex items-center gap-4 animate-pulse">
+                        <span className="animate-bounce">Game is starting</span>
+                        <div className="flex gap-1">
+                            <span className="animate-bounce">.</span>
+                            <span className="animate-bounce delay-200">.</span>
+                            <span className="animate-bounce delay-400">.</span>
+                        </div>
+                    </div>
+                </div>
+            ) : gameStarted ? (
                 <div className="flex h-screen w-full text-white">
                     <div className="w-1/4 p-4 border-gray-800 flex flex-col justify-start mt-16">
                         <Scoreboard players={Object.values(players)} />
                     </div>
 
-                    <div className="flex-1 flex flex-col items-center justify-center p-4">
+                    <div className="flex-1 p-4 relative flex items-center justify-center">
                         <GameCanvas players={Object.values(players)} />
+
+                        {countdown >= 1 && (
+                            <div className="absolute inset-0 z-50 flex items-center justify-center text-white text-8xl font-bold">
+                                {countdown}
+                            </div>
+                        )}
                     </div>
-                </div>
-            ) : countdown > 0 ? (
-                <div>
-                    {countdown !== null && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 text-white text-8xl font-bold">
-                            {countdown > 0 ? countdown : "GO!"}
-                        </div>
-                    )}
                 </div>
             ) : (
                 <div className="min-h-screen flex flex-col items-center justify-start px-4 py-6 text-white">

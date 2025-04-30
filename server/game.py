@@ -104,14 +104,12 @@ class Game:
         self.reset_round()
 
     async def start_game(self):
-        for i in reversed(range(1, 4)):  # 3, 2, 1
-            for socket in self.sockets.values():
-                await socket.send_json({"type": "countdown", "seconds": i})
-            await self.tv_client.socket.send_json({
-                "type": "countdown",
-                "seconds": i
-            })
-            await asyncio.sleep(1)
+        for socket in self.sockets.values():
+            await socket.send_json({"type": "game_starting"})
+
+        await self.tv_client.socket.send_json({"type": "game_starting"})
+
+        await asyncio.sleep(3)
 
         for player_id, socket in self.sockets.items():
             await socket.send_json({
@@ -126,8 +124,19 @@ class Game:
 
         self.loop_task = asyncio.create_task(self.game_loop())
 
+    async def handle_round_start(self):
+        await self.tv_client.socket.send_json({"type": "start_round"})
+        await asyncio.sleep(1)
+
+        for i in reversed(range(0, 4)):
+            await self.tv_client.socket.send_json({
+                "type": "countdown",
+                "seconds": i
+            })
+            await asyncio.sleep(1)
+
     async def end_round(self):
-        await asyncio.sleep(3)
+        # await asyncio.sleep(3)
         for socket in self.sockets.values():
             await socket.send_json({"type": "reset_round"})
         await self.tv_client.reset_round()
@@ -154,7 +163,7 @@ class Game:
             await self.broadcast_game_state()
             round_over = self.is_round_over()
             if round_over:
-
+                await self.handle_round_start()
                 await self.end_round()
 
             await asyncio.sleep(self.frame_rate)
