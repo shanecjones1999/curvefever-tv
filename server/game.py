@@ -44,7 +44,6 @@ class Game:
 
         self.players[player.id] = player
         self.sockets[player.id] = socket
-        # Initialize player score if not already set
         if player.id not in self.scores:
             self.scores[player.id] = 0
 
@@ -79,7 +78,7 @@ class Game:
         for player in self.players.values():
             player.reset()
             player.x = start_positions[tmp][0]
-            player.y = start_positions[tmp][0]
+            player.y = start_positions[tmp][1]
             angle = random.uniform(0, 360)
             player.angle = angle
             tmp += 1
@@ -88,10 +87,10 @@ class Game:
                                     num_players: int) -> List[Tuple[int, int]]:
         positions = []
 
-        margin_x = 100
-        margin_y = 100
+        margin_x = 200
+        margin_y = 200
 
-        for i in range(num_players):
+        for _ in range(num_players):
             x = random.randint(margin_x, self.width - margin_x)
             y = random.randint(margin_y, self.height - margin_y)
 
@@ -120,13 +119,17 @@ class Game:
         await self.tv_client.socket.send_json({"type": "game_start"})
 
         self.started = True
-        self.start_round()
+        await self.handle_round_start()
 
         self.loop_task = asyncio.create_task(self.game_loop())
 
     async def handle_round_start(self):
+        self.start_round()
+
         await self.tv_client.socket.send_json({"type": "start_round"})
         await asyncio.sleep(1)
+
+        # await self.broadcast_game_state()
 
         for i in reversed(range(0, 4)):
             await self.tv_client.socket.send_json({
@@ -136,7 +139,8 @@ class Game:
             await asyncio.sleep(1)
 
     async def end_round(self):
-        # await asyncio.sleep(3)
+        await asyncio.sleep(3)
+
         for socket in self.sockets.values():
             await socket.send_json({"type": "reset_round"})
         await self.tv_client.reset_round()
@@ -163,8 +167,9 @@ class Game:
             await self.broadcast_game_state()
             round_over = self.is_round_over()
             if round_over:
-                await self.handle_round_start()
                 await self.end_round()
+                await asyncio.sleep(0.1)
+                await self.handle_round_start()
 
             await asyncio.sleep(self.frame_rate)
 

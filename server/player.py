@@ -38,7 +38,7 @@ class Player:
 
     def update_position(self, game_index: int):
         """Update player's position based on current movement state."""
-        if self.eliminated or game_index <= 100:
+        if self.eliminated:
             return
 
         if self.left_pressed:
