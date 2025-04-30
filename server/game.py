@@ -127,9 +127,9 @@ class Game:
         self.start_round()
 
         await self.tv_client.socket.send_json({"type": "start_round"})
-        await asyncio.sleep(1)
-
-        # await self.broadcast_game_state()
+        await asyncio.sleep(.01)
+        await self.broadcast_game_state()
+        # await asyncio.sleep(.1)
 
         for i in reversed(range(0, 4)):
             await self.tv_client.socket.send_json({
