@@ -39,7 +39,7 @@ class Trail:
         ) >= 100 and random.randint(0, 100) <= 1
 
     def add_point(self, x: int, y: int, player_id: str, game_index: int):
-        if game_index <= 200:
+        if game_index <= 100:
             self.is_floating = True
             return
 
