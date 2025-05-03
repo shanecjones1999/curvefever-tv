@@ -33,6 +33,7 @@ class Game:
         self.loop_task = None
         self.target_score = 0
         self.eliminated_players_queue = []
+        self.countdown = 0
 
     def add_tv_client(self, tv_client: TvClient):
         if self.tv_client:
@@ -138,15 +139,9 @@ class Game:
                 self.get_player_state(self.players[player_id])
             })
 
-        await self.tv_client.socket.send_json({"type": "start_round"})
-        # await asyncio.sleep(.01)
-        # await self.broadcast_game_state()
-
         for i in reversed(range(0, 4)):
-            await self.tv_client.socket.send_json({
-                "type": "countdown",
-                "seconds": i
-            })
+            self.countdown = i
+            await self.broadcast_game_state()
             await asyncio.sleep(1)
 
     async def end_round(self):
@@ -163,8 +158,6 @@ class Game:
 
         if self.is_game_over():
             await self.end_game()
-        else:
-            self.start_round()
 
     def is_game_over(self):
         for player in self.players.values():
@@ -220,7 +213,8 @@ class Game:
             "type": "game_update",
             "players": player_dict,
             "round": self.round_number,
-            "scores": self.scores
+            "scores": self.scores,
+            "countdown": self.countdown
         }
 
         await self.tv_client.socket.send_json(game_state)
@@ -276,7 +270,7 @@ class Game:
             "gameStarted": self.started,
             "eliminated": player.eliminated,
             "startingSoon": False,
-            "countDown": 3,
+            "countdown": self.countdown,
         }
 
     # def remove_player(self, player_id):

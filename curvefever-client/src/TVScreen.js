@@ -52,6 +52,7 @@ const TVScreen = ({ roomCode }) => {
                     });
                     return updated;
                 });
+                setCountdown(data.countdown);
                 break;
             case "reset_round":
                 setPlayers((prev) => {
