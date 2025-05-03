@@ -13,6 +13,9 @@ const Scoreboard = ({ players }) => {
             <h2 className="text-2xl font-bold text-white text-center">
                 Scoreboard
             </h2>
+            <p className="text-white text-center text-sm">
+                First to {Math.max(10, 10 * (players.length - 1))} points
+            </p>
 
             <AnimatePresence>
                 {sortedPlayers.map((player) => {

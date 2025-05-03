@@ -31,6 +31,7 @@ class Game:
         self.grid = SpatialHashGrid(cell_size=10)
         self.game_index = 0
         self.loop_task = None
+        self.target_score = 0
 
     def add_tv_client(self, tv_client: TvClient):
         if self.tv_client:
@@ -103,6 +104,8 @@ class Game:
         self.reset_round()
 
     async def start_game(self):
+        self.target_score = min(10, 10 * len(self.players) - 1)
+
         for socket in self.sockets.values():
             await socket.send_json({"type": "game_starting"})
 
@@ -138,16 +141,26 @@ class Game:
             await asyncio.sleep(1)
 
     async def end_round(self):
+        if len(self.players) == 1:
+            next(iter(self.players.values())).score += 1
+
         await asyncio.sleep(3)
 
         for socket in self.sockets.values():
             await socket.send_json({"type": "reset_round"})
         await self.tv_client.reset_round()
 
-        if self.round_number >= 20:
+        if self.is_game_over():
             await self.end_game()
         else:
             self.start_round()
+
+    def is_game_over(self):
+        for player in self.players.values():
+            if player.score >= self.target_score:
+                return True
+
+        return False
 
     async def end_game(self):
         self.game_over = True
@@ -215,10 +228,6 @@ class Game:
                 for other_player in self.players.values():
                     if player.id != other_player.id:
                         other_player.score += 1
-                # await ws.send_json({
-                #     "type": "player_info",
-                #     "playerId": player.id,
-                # })
                 break
 
     def _is_recent(self, point: TrailPoint, buffer=10):
