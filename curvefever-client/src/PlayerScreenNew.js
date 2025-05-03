@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import JoinRoomForm from "./JoinRoomForm";
+import PlayerControls from "./PlayerControls";
 
 function PlayerScreenNew() {
     const [name, setName] = useState("");
     const [playerId, setPlayerId] = useState(null);
     const [roomCode, setRoomCode] = useState(null);
     const [connected, setConnected] = useState(false);
+    const [gameStarted, setGameStarted] = useState(false);
     const socketRef = useRef(null);
 
     const handleJoinSuccess = ({ player_id, room_code, name }) => {
@@ -16,6 +18,24 @@ function PlayerScreenNew() {
         // Optional: store in localStorage for reconnect logic
         localStorage.setItem("playerId", player_id);
         localStorage.setItem("roomCode", room_code);
+    };
+
+    const sendDirection = (left, right) => {
+        if (
+            socketRef.current &&
+            socketRef.current.readyState === WebSocket.OPEN
+        ) {
+            socketRef.current.send(
+                JSON.stringify({
+                    type: "move",
+                    playerId,
+                    state: { left, right },
+                })
+            );
+        }
+        // if (playerId) {
+        //     socketRef.send({ type: "move", playerId, state: { left, right } });
+        // }
     };
 
     // Connect to WebSocket after joining
@@ -32,6 +52,14 @@ function PlayerScreenNew() {
 
             socket.onmessage = (event) => {
                 console.log("Received:", event.data);
+                const eventData = JSON.parse(event.data);
+                switch (eventData.type) {
+                    case "game_start":
+                        setGameStarted(true);
+                        break;
+                    default:
+                        break;
+                }
             };
 
             socket.onclose = () => {
@@ -67,8 +95,14 @@ function PlayerScreenNew() {
             <p>Your player ID: {playerId}</p>
             <p>WebSocket Status: {connected ? "Connected" : "Connecting..."}</p>
 
-            {/* Add buttons to send messages if needed */}
-            {/* <button onClick={() => socketRef.current.send("some message")}>Send</button> */}
+            {gameStarted ? (
+                <PlayerControls
+                    // playerId={playerId}
+                    sendDirection={sendDirection} // or however you're handling control events
+                />
+            ) : (
+                <p>Waiting for game to start...</p>
+            )}
         </div>
     );
 }

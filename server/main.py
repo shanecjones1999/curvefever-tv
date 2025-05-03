@@ -117,8 +117,7 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
                     g = random.randint(180, 255)
                     b = random.randint(180, 255)
                     color = '#{:02x}{:02x}{:02x}'.format(r, g, b)
-                    player = Player(uuid.uuid4().hex[:8], room_code, name, 4,
-                                    color)
+                    player = Player(client_id, room_code, name, 4, color)
 
                     game = game_manager.get_game(room_code)
                     if not game:
