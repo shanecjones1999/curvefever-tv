@@ -1,5 +1,5 @@
 from typing import Dict, List, Optional
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from typing import Dict, List
 from fastapi.middleware.cors import CORSMiddleware
 import json
@@ -8,6 +8,7 @@ import os
 import uuid
 import random
 import asyncio
+from pydantic import BaseModel
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from tv_client import TvClient
@@ -50,9 +51,39 @@ def check_player(room_code: str):
     return {"active": False}
 
 
-@app.websocket("/ws/{room_code}/{client_type}")
+class JoinRoomRequest(BaseModel):
+    room_code: str
+    name: str
+
+
+class JoinRoomResponse(BaseModel):
+    player_id: str
+    room_code: str
+    name: str
+
+
+@app.post("/join_room", response_model=JoinRoomResponse)
+def join_room(request: JoinRoomRequest):
+    room_code = request.room_code
+    player_name = request.name.strip()
+
+    if not player_name:
+        raise HTTPException(status_code=400, detail="Player name is required")
+
+    game = game_manager.get_game(room_code)
+    if not game or game.started:
+        raise HTTPException(status_code=404, detail="Room not found")
+
+    player_id = str(uuid.uuid4().hex[:8])
+
+    return JoinRoomResponse(player_id=player_id,
+                            room_code=room_code,
+                            name=player_name)
+
+
+@app.websocket("/ws/{room_code}/{client_type}/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, room_code: str,
-                             client_type: str):
+                             client_type: str, client_id: str):
     await websocket.accept()
 
     game = game_manager.get_game(room_code)
@@ -169,6 +200,8 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
                 print("Disconnected websocket not found in player_sockets")
         else:
             raise Exception(f"Invalid client_type: {client_type}")
+    except Exception as e:
+        print(e)
 
 
 async def broadcast_lobby(room_code: str):

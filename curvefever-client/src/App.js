@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import TVScreen from "./TVScreen";
 import PlayerScreen from "./PlayerScreen";
+import JoinRoomForm from "./JoinRoomForm";
+import PlayerScreenNew from "./PlayerScreenNew";
 
 const App = () => {
     const [view, setView] = useState("");
@@ -78,10 +80,11 @@ const App = () => {
             ) : view === "tv" ? (
                 <TVScreen roomCode={roomCode} />
             ) : (
-                <PlayerScreen
-                    cachedRoomCode={roomCode}
-                    cachedPlayerId={playerId}
-                />
+                <PlayerScreenNew />
+                // <PlayerScreen
+                //     cachedRoomCode={roomCode}
+                //     cachedPlayerId={playerId}
+                // />
             )}
         </div>
     );

@@ -14,7 +14,7 @@ const TVScreen = ({ roomCode }) => {
 
     const { lastMessage, sendJson, readyState, connect, disconnect } =
         useWebSocket({
-            url: `ws://localhost:8000/ws/${roomCode}/tv`,
+            url: `ws://localhost:8000/ws/${roomCode}/tv/${roomCode}`,
             autoConnect: true,
         });
 
