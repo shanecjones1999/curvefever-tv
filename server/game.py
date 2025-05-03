@@ -32,6 +32,7 @@ class Game:
         self.game_index = 0
         self.loop_task = None
         self.target_score = 0
+        self.eliminated_players_queue = []
 
     def add_tv_client(self, tv_client: TvClient):
         if self.tv_client:
@@ -129,9 +130,17 @@ class Game:
     async def handle_round_start(self):
         self.start_round()
 
+        for player_id, socket in self.sockets.items():
+            await socket.send_json({
+                "type":
+                "player_state_update",
+                "playerState":
+                self.get_player_state(self.players[player_id])
+            })
+
         await self.tv_client.socket.send_json({"type": "start_round"})
-        await asyncio.sleep(.01)
-        await self.broadcast_game_state()
+        # await asyncio.sleep(.01)
+        # await self.broadcast_game_state()
 
         for i in reversed(range(0, 4)):
             await self.tv_client.socket.send_json({
@@ -141,14 +150,16 @@ class Game:
             await asyncio.sleep(1)
 
     async def end_round(self):
-        if len(self.players) == 1:
-            next(iter(self.players.values())).score += 1
-
         await asyncio.sleep(3)
 
-        for socket in self.sockets.values():
-            await socket.send_json({"type": "reset_round"})
         await self.tv_client.reset_round()
+        for player_id, socket in self.sockets.items():
+            await socket.send_json({
+                "type":
+                "player_state_update",
+                "playerState":
+                self.get_player_state(self.players[player_id])
+            })
 
         if self.is_game_over():
             await self.end_game()
@@ -176,6 +187,8 @@ class Game:
             for player in self.players.values():
                 await self.smart_check_collision(player)
 
+            await self.handle_eliminated_queue()
+
             await self.broadcast_game_state()
             round_over = self.is_round_over()
             if round_over:
@@ -184,6 +197,17 @@ class Game:
                 await self.handle_round_start()
 
             await asyncio.sleep(self.frame_rate)
+
+    async def handle_eliminated_queue(self):
+        for player_id in self.eliminated_players_queue:
+            socket = self.sockets.get(player_id)
+            await socket.send_json({
+                "type":
+                "player_state_update",
+                "playerState":
+                self.get_player_state(self.players[player_id])
+            })
+        self.eliminated_players_queue = []
 
     async def broadcast_game_state(self):
         """Send updated player positions to TV and players."""
@@ -223,11 +247,13 @@ class Game:
 
             if self.is_colliding(player, point):
                 player.eliminated = True
-                ws = self.sockets[player.id]
-                await ws.send_json({"type": "eliminated"})
-                for other_player in self.players.values():
-                    if player.id != other_player.id:
-                        other_player.score += 1
+                self.eliminated_players_queue.append(player.id)
+                if len(self.players) == 1:
+                    next(iter(self.players.values())).score += 1
+                else:
+                    for other_player in self.players.values():
+                        if player.id != other_player.id:
+                            other_player.score += 1
                 break
 
     def _is_recent(self, point: TrailPoint, buffer=10):
@@ -244,5 +270,13 @@ class Game:
     async def broadcast_tv_disconnect(self):
         for socket in self.sockets.values():
             await socket.send_json({"type": "tv_disconnect"})
+
+    def get_player_state(self, player: Player):
+        return {
+            "gameStarted": self.started,
+            "eliminated": player.eliminated,
+            "startingSoon": False,
+            "countDown": 3,
+        }
 
     # def remove_player(self, player_id):

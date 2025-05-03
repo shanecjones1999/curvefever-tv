@@ -157,7 +157,7 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
                     game = game_manager.get_game(room_code)
                     if not game:
                         raise Exception("Missing game")
-                    player_id = message["playerId"]
+                    player_id = client_id
                     game.update_player_direction(player_id,
                                                  message['state']['left'],
                                                  message['state']['right'])

@@ -8,6 +8,12 @@ function PlayerScreenNew() {
     const [roomCode, setRoomCode] = useState(null);
     const [connected, setConnected] = useState(false);
     const [gameStarted, setGameStarted] = useState(false);
+    const [playerState, setPlayerState] = useState({
+        gameStarted: false,
+        eliminated: false,
+        startingSoon: false,
+        countdown: null,
+    });
     const socketRef = useRef(null);
 
     const handleJoinSuccess = ({ player_id, room_code, name }) => {
@@ -28,7 +34,6 @@ function PlayerScreenNew() {
             socketRef.current.send(
                 JSON.stringify({
                     type: "move",
-                    playerId,
                     state: { left, right },
                 })
             );
@@ -56,6 +61,21 @@ function PlayerScreenNew() {
                 switch (eventData.type) {
                     case "game_start":
                         setGameStarted(true);
+                        break;
+                    case "tv_disconnect":
+                        alert("The host has disconnected. The game will end.");
+                        window.location.href = "/";
+                        break;
+                    case "player_state_update":
+                        setPlayerState((prev) => ({
+                            ...prev,
+                            ...eventData.playerState,
+                        }));
+                        break;
+                    case "eliminated":
+                        setPlayerState(() => ({
+                            eliminated: true,
+                        }));
                         break;
                     default:
                         break;
@@ -99,6 +119,7 @@ function PlayerScreenNew() {
                 <PlayerControls
                     // playerId={playerId}
                     sendDirection={sendDirection} // or however you're handling control events
+                    disabled={playerState.eliminated}
                 />
             ) : (
                 <p>Waiting for game to start...</p>
