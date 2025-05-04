@@ -53,6 +53,7 @@ const TVScreen = ({ roomCode }) => {
                     return updated;
                 });
                 setCountdown(data.countdown);
+                setGameStarted(data.started);
                 break;
             case "reset_round":
                 setPlayers((prev) => {

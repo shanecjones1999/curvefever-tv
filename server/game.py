@@ -34,6 +34,7 @@ class Game:
         self.target_score = 0
         self.eliminated_players_queue = []
         self.countdown = 0
+        self.game_starting = False
 
     def add_tv_client(self, tv_client: TvClient):
         if self.tv_client:
@@ -106,24 +107,40 @@ class Game:
         self.reset_round()
 
     async def start_game(self):
+        self.game_starting = True
+
         self.target_score = min(10, 10 * len(self.players) - 1)
 
-        for socket in self.sockets.values():
-            await socket.send_json({"type": "game_starting"})
+        for player_id, socket in self.sockets.items():
+            await socket.send_json({
+                "type":
+                "player_state_update",
+                "playerState":
+                self.get_player_state(self.players[player_id])
+            })
 
         await self.tv_client.socket.send_json({"type": "game_starting"})
 
         await asyncio.sleep(3)
 
+        self.started = True
+
+        # for player_id, socket in self.sockets.items():
+        #     await socket.send_json({
+        #         "type": "game_start",
+        #         "playerId": player_id,
+        #     })
+
         for player_id, socket in self.sockets.items():
             await socket.send_json({
-                "type": "game_start",
-                "playerId": player_id,
+                "type":
+                "player_state_update",
+                "playerState":
+                self.get_player_state(self.players[player_id])
             })
 
         await self.tv_client.socket.send_json({"type": "game_start"})
 
-        self.started = True
         await self.handle_round_start()
 
         self.loop_task = asyncio.create_task(self.game_loop())
@@ -214,7 +231,8 @@ class Game:
             "players": player_dict,
             "round": self.round_number,
             "scores": self.scores,
-            "countdown": self.countdown
+            "countdown": self.countdown,
+            "started": self.started
         }
 
         await self.tv_client.socket.send_json(game_state)
@@ -269,7 +287,7 @@ class Game:
         return {
             "gameStarted": self.started,
             "eliminated": player.eliminated,
-            "startingSoon": False,
+            "gameStarting": self.game_starting,
             "countdown": self.countdown,
         }
 

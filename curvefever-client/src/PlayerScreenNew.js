@@ -7,11 +7,10 @@ function PlayerScreenNew() {
     const [playerId, setPlayerId] = useState(null);
     const [roomCode, setRoomCode] = useState(null);
     const [connected, setConnected] = useState(false);
-    const [gameStarted, setGameStarted] = useState(false);
     const [playerState, setPlayerState] = useState({
         gameStarted: false,
         eliminated: false,
-        startingSoon: false,
+        gameStarting: false,
         countdown: null,
     });
     const socketRef = useRef(null);
@@ -21,7 +20,6 @@ function PlayerScreenNew() {
         setRoomCode(room_code);
         setName(name);
 
-        // Optional: store in localStorage for reconnect logic
         localStorage.setItem("playerId", player_id);
         localStorage.setItem("roomCode", room_code);
     };
@@ -38,12 +36,8 @@ function PlayerScreenNew() {
                 })
             );
         }
-        // if (playerId) {
-        //     socketRef.send({ type: "move", playerId, state: { left, right } });
-        // }
     };
 
-    // Connect to WebSocket after joining
     useEffect(() => {
         if (playerId && roomCode) {
             const wsUrl = `ws://localhost:8000/ws/${roomCode}/player/${playerId}`;
@@ -59,9 +53,6 @@ function PlayerScreenNew() {
                 console.log("Received:", event.data);
                 const eventData = JSON.parse(event.data);
                 switch (eventData.type) {
-                    case "game_start":
-                        setGameStarted(true);
-                        break;
                     case "tv_disconnect":
                         alert("The host has disconnected. The game will end.");
                         window.location.href = "/";
@@ -103,26 +94,41 @@ function PlayerScreenNew() {
     if (!playerId || !roomCode) {
         return (
             <div>
-                <h2>Join a Game</h2>
                 <JoinRoomForm onJoinSuccess={handleJoinSuccess} />
             </div>
         );
     }
 
     return (
-        <div>
-            <h2>Welcome to Room {roomCode}</h2>
-            <p>Your player ID: {playerId}</p>
-            <p>WebSocket Status: {connected ? "Connected" : "Connecting..."}</p>
+        <div className="max-w-md mx-auto mt-10 p-6 bg-gray-800 shadow-xl rounded-xl text-center space-y-4 text-gray-100">
+            <h2 className="text-2xl font-bold text-white">
+                {playerState.gameStarted ? "Don't crash" : "Welcome"},{" "}
+                <span className="text-blue-400">{name}</span>
+            </h2>
 
-            {gameStarted ? (
+            <p className="text-sm text-gray-300">
+                You are in room:{" "}
+                <span className="font-mono text-white">{roomCode}</span>
+            </p>
+
+            {/* Animated "Get Ready..." message */}
+            {!playerState.gameStarted && playerState.gameStarting && (
+                <p className="text-2xl font-semibold animate-bounce">
+                    Get ready...
+                </p>
+            )}
+
+            {playerState.gameStarted ? (
                 <PlayerControls
-                    // playerId={playerId}
-                    sendDirection={sendDirection} // or however you're handling control events
+                    sendDirection={sendDirection}
                     disabled={playerState.eliminated}
                 />
             ) : (
-                <p>Waiting for game to start...</p>
+                !playerState.gameStarting && (
+                    <p className="text-lg text-gray-200 italic">
+                        Waiting for game to start...
+                    </p>
+                )
             )}
         </div>
     );

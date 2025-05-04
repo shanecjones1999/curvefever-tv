@@ -30,7 +30,7 @@ game_manager = GameManager()
 
 @app.get("/get_room_code")
 async def get_room_code():
-    room_code = uuid.uuid4().hex[:4]
+    room_code = str(uuid.uuid4().hex[:4]).upper()
     game_manager.create_game(room_code)
     return {"room_code": room_code}
 
@@ -64,7 +64,7 @@ class JoinRoomResponse(BaseModel):
 
 @app.post("/join_room", response_model=JoinRoomResponse)
 def join_room(request: JoinRoomRequest):
-    room_code = request.room_code
+    room_code = request.room_code.upper()
     player_name = request.name.strip()
 
     if not player_name:
