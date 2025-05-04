@@ -109,7 +109,7 @@ class Game:
     async def start_game(self):
         self.game_starting = True
 
-        self.target_score = min(10, 10 * len(self.players) - 1)
+        self.target_score = max(10, 10 * len(self.players) - 1)
 
         for player_id, socket in self.sockets.items():
             await socket.send_json({
@@ -124,12 +124,6 @@ class Game:
         await asyncio.sleep(3)
 
         self.started = True
-
-        # for player_id, socket in self.sockets.items():
-        #     await socket.send_json({
-        #         "type": "game_start",
-        #         "playerId": player_id,
-        #     })
 
         for player_id, socket in self.sockets.items():
             await socket.send_json({
@@ -165,13 +159,6 @@ class Game:
         await asyncio.sleep(3)
 
         await self.tv_client.reset_round()
-        for player_id, socket in self.sockets.items():
-            await socket.send_json({
-                "type":
-                "player_state_update",
-                "playerState":
-                self.get_player_state(self.players[player_id])
-            })
 
         if self.is_game_over():
             await self.end_game()
@@ -187,7 +174,6 @@ class Game:
         self.game_over = True
 
     async def game_loop(self):
-        """Continuously update player positions and send game state."""
         while not self.game_over:
             self.frame_count += 1
             self.game_index += 1
