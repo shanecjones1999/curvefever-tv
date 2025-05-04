@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import JoinRoomForm from "./JoinRoomForm";
+// import JoinRoomForm from "./JoinRoomForm";
 import PlayerControls from "./PlayerControls";
 
-function PlayerScreenNew() {
-    const [name, setName] = useState("");
-    const [playerId, setPlayerId] = useState(null);
-    const [roomCode, setRoomCode] = useState(null);
+function PlayerScreenNew({ name, playerId, roomCode }) {
+    // const [name, setName] = useState("");
+    // const [playerId, setPlayerId] = useState(null);
+    // const [roomCode, setRoomCode] = useState(null);
     const [connected, setConnected] = useState(false);
     const [playerState, setPlayerState] = useState({
         gameStarted: false,
@@ -15,14 +15,16 @@ function PlayerScreenNew() {
     });
     const socketRef = useRef(null);
 
-    const handleJoinSuccess = ({ player_id, room_code, name }) => {
-        setPlayerId(player_id);
-        setRoomCode(room_code);
-        setName(name);
+    // const handleJoinSuccess = ({ player_id, room_code, name }) => {
+    //     setPlayerId(player_id);
+    //     setRoomCode(room_code);
+    //     setName(name);
 
-        localStorage.setItem("playerId", player_id);
-        localStorage.setItem("roomCode", room_code);
-    };
+    //     localStorage.setItem(
+    //         "playerInfo",
+    //         JSON.stringify({ playerId: player_id, roomCode: room_code })
+    //     );
+    // };
 
     const sendDirection = (left, right) => {
         if (
@@ -39,65 +41,64 @@ function PlayerScreenNew() {
     };
 
     useEffect(() => {
-        if (playerId && roomCode) {
-            const wsUrl = `ws://localhost:8000/ws/${roomCode}/player/${playerId}`;
-            const socket = new WebSocket(wsUrl);
+        const wsUrl = `ws://localhost:8000/ws/${roomCode}/player/${playerId}`;
+        const socket = new WebSocket(wsUrl);
 
-            socket.onopen = () => {
-                console.log("WebSocket connected");
-                setConnected(true);
-                socket.send(JSON.stringify({ type: "join", name: name }));
-            };
+        socket.onopen = () => {
+            console.log("WebSocket connected");
+            setConnected(true);
+            console.log("player is named:", name);
+            socket.send(JSON.stringify({ type: "join", name: name }));
+        };
 
-            socket.onmessage = (event) => {
-                console.log("Received:", event.data);
-                const eventData = JSON.parse(event.data);
-                switch (eventData.type) {
-                    case "tv_disconnect":
-                        alert("The host has disconnected. The game will end.");
-                        window.location.href = "/";
-                        break;
-                    case "player_state_update":
-                        setPlayerState((prev) => ({
-                            ...prev,
-                            ...eventData.playerState,
-                        }));
-                        break;
-                    case "eliminated":
-                        setPlayerState(() => ({
-                            eliminated: true,
-                        }));
-                        break;
-                    default:
-                        break;
-                }
-            };
+        socket.onmessage = (event) => {
+            console.log("Received:", event.data);
+            const eventData = JSON.parse(event.data);
+            switch (eventData.type) {
+                case "tv_disconnect":
+                    alert("The host has disconnected. The game will end.");
+                    window.location.href = "/";
+                    break;
+                case "player_state_update":
+                    setPlayerState((prev) => ({
+                        ...prev,
+                        ...eventData.playerState,
+                    }));
+                    break;
+                case "eliminated":
+                    setPlayerState(() => ({
+                        eliminated: true,
+                    }));
+                    break;
+                default:
+                    break;
+            }
+        };
 
-            socket.onclose = () => {
-                console.log("WebSocket disconnected");
-                setConnected(false);
-            };
+        socket.onclose = () => {
+            console.log("WebSocket disconnected");
+            setConnected(false);
+        };
 
-            socket.onerror = (err) => {
-                console.error("WebSocket error:", err);
-            };
+        socket.onerror = (err) => {
+            console.error("WebSocket error:", err);
+        };
 
-            socketRef.current = socket;
+        socketRef.current = socket;
 
-            return () => {
-                console.log("Cleaning up WebSocket");
-                socket.close();
-            };
-        }
-    }, [playerId, roomCode]);
+        return () => {
+            console.log("Cleaning up WebSocket");
+            socket.close();
+        };
+    }, []);
 
-    if (!playerId || !roomCode) {
-        return (
-            <div>
-                <JoinRoomForm onJoinSuccess={handleJoinSuccess} />
-            </div>
-        );
-    }
+    // if (!playerId || !roomCode) {
+    //     return (
+    //         <div>
+    //             <JoinRoomForm onJoinSuccess={handleJoinSuccess} />
+    //         </div>
+    //     );
+    // }
 
     return (
         <div className="max-w-md mx-auto mt-10 p-6 bg-gray-800 shadow-xl rounded-xl text-center space-y-4 text-gray-100">

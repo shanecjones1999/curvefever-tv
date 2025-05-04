@@ -8,6 +8,7 @@ const App = () => {
     const [view, setView] = useState("");
     const [roomCode, setRoomCode] = useState("");
     const [playerId, setPlayerId] = useState(null);
+    const [name, setName] = useState();
 
     const handleTVClick = async () => {
         try {
@@ -20,12 +21,29 @@ const App = () => {
         }
     };
 
+    const handleJoinSuccess = ({ player_id, room_code, name }) => {
+        setPlayerId(player_id);
+        setRoomCode(room_code);
+        setName(name);
+
+        setView("player");
+
+        localStorage.setItem(
+            "playerInfo",
+            JSON.stringify({
+                playerId: player_id,
+                roomCode: room_code,
+                name: name,
+            })
+        );
+    };
+
     useEffect(() => {
         const tryAutoReconnect = async () => {
             const stored = localStorage.getItem("playerInfo");
             if (!stored) return;
 
-            const { roomCode, playerId } = JSON.parse(stored);
+            const { roomCode, playerId, name } = JSON.parse(stored);
 
             try {
                 const response = await fetch(
@@ -41,6 +59,7 @@ const App = () => {
                     // Player is in a live game; proceed with reconnect
                     setRoomCode(roomCode);
                     setPlayerId(playerId);
+                    setName(name);
                     setView("player");
                 } else {
                     // Cleanup if game no longer exists
@@ -70,7 +89,7 @@ const App = () => {
                             Create Room
                         </button>
                         <button
-                            onClick={() => setView("player")}
+                            onClick={() => setView("join")}
                             className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow"
                         >
                             Join Room
@@ -79,12 +98,16 @@ const App = () => {
                 </div>
             ) : view === "tv" ? (
                 <TVScreen roomCode={roomCode} />
+            ) : view === "join" ? (
+                <JoinRoomForm onJoinSuccess={handleJoinSuccess} />
+            ) : view === "player" ? (
+                <PlayerScreenNew
+                    roomCode={roomCode}
+                    playerId={playerId}
+                    name={name}
+                />
             ) : (
-                <PlayerScreenNew />
-                // <PlayerScreen
-                //     cachedRoomCode={roomCode}
-                //     cachedPlayerId={playerId}
-                // />
+                <div>UNKNOWN</div>
             )}
         </div>
     );
