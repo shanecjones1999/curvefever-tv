@@ -109,7 +109,7 @@ class Game:
     async def start_game(self):
         self.game_starting = True
 
-        self.target_score = max(10, 10 * len(self.players) - 1)
+        self.target_score = max(10, 10 * (len(self.players) - 1))
 
         for player_id, socket in self.sockets.items():
             await socket.send_json({
