@@ -211,12 +211,15 @@ class Game:
     async def handle_eliminated_queue(self):
         for player_id in self.eliminated_players_queue:
             socket = self.sockets.get(player_id)
-            await socket.send_json({
-                "type":
-                "player_state_update",
-                "playerState":
-                self.get_player_state(self.players[player_id])
-            })
+            try:
+                await socket.send_json({
+                    "type":
+                    "player_state_update",
+                    "playerState":
+                    self.get_player_state(self.players[player_id])
+                })
+            except Exception as e:
+                print(f"Error sending to player {player_id}: {e}")
         self.eliminated_players_queue = []
 
     async def broadcast_game_state(self):

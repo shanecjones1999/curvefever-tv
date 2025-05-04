@@ -113,19 +113,30 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
             elif client_type == "player":
                 if message["type"] == "join":
                     name = message["name"]
-                    r = random.randint(180, 255)
-                    g = random.randint(180, 255)
-                    b = random.randint(180, 255)
-                    color = '#{:02x}{:02x}{:02x}'.format(r, g, b)
-                    player = Player(client_id, room_code, name, 4, color)
-
                     game = game_manager.get_game(room_code)
                     if not game:
                         await websocket.send_json(
                             {"type": "invalid_room_code"})
                         return
-                    game.add_player(player, websocket)
-                    await broadcast_lobby(room_code)
+
+                    if client_id in game.sockets:
+                        game.sockets[client_id] = websocket
+                        player = game.players[client_id]
+                        player_state = game.get_player_state(player)
+                        await websocket.send_json({
+                            "type": "player_state_update",
+                            "playerState": player_state
+                        })
+
+                    else:
+                        r = random.randint(180, 255)
+                        g = random.randint(180, 255)
+                        b = random.randint(180, 255)
+                        color = '#{:02x}{:02x}{:02x}'.format(r, g, b)
+                        player = Player(client_id, room_code, name, 4, color)
+
+                        game.add_player(player, websocket)
+                        await broadcast_lobby(room_code)
 
                 elif message["type"] == "reconnect":
                     try:
@@ -158,7 +169,7 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
                                                  message['state']['right'])
 
     except WebSocketDisconnect:
-        print("Disconnecting websocket")
+        print("Disconnecting websocket", client_type)
         if client_type == "tv":
             game = game_manager.get_game(room_code)
             if not game:
