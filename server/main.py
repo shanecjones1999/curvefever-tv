@@ -117,9 +117,8 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
                     if not game:
                         await websocket.send_json(
                             {"type": "invalid_room_code"})
-                        return
 
-                    if client_id in game.sockets:
+                    elif client_id in game.sockets:
                         game.sockets[client_id] = websocket
                         player = game.players[client_id]
                         player_state = game.get_player_state(player)

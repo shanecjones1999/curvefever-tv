@@ -1,12 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-// import JoinRoomForm from "./JoinRoomForm";
 import PlayerControls from "./PlayerControls";
 
 function PlayerScreenNew({ name, playerId, roomCode }) {
-    // const [name, setName] = useState("");
-    // const [playerId, setPlayerId] = useState(null);
-    // const [roomCode, setRoomCode] = useState(null);
-    const [connected, setConnected] = useState(false);
     const [playerState, setPlayerState] = useState({
         gameStarted: false,
         eliminated: false,
@@ -14,17 +9,6 @@ function PlayerScreenNew({ name, playerId, roomCode }) {
         countdown: null,
     });
     const socketRef = useRef(null);
-
-    // const handleJoinSuccess = ({ player_id, room_code, name }) => {
-    //     setPlayerId(player_id);
-    //     setRoomCode(room_code);
-    //     setName(name);
-
-    //     localStorage.setItem(
-    //         "playerInfo",
-    //         JSON.stringify({ playerId: player_id, roomCode: room_code })
-    //     );
-    // };
 
     const sendDirection = (left, right) => {
         if (
@@ -45,9 +29,6 @@ function PlayerScreenNew({ name, playerId, roomCode }) {
         const socket = new WebSocket(wsUrl);
 
         socket.onopen = () => {
-            console.log("WebSocket connected");
-            setConnected(true);
-            console.log("player is named:", name);
             socket.send(JSON.stringify({ type: "join", name: name }));
         };
 
@@ -70,6 +51,11 @@ function PlayerScreenNew({ name, playerId, roomCode }) {
                         eliminated: true,
                     }));
                     break;
+                case "invalid_room_code":
+                    if (socketRef.current) {
+                        socketRef.current.close();
+                    }
+                    break;
                 default:
                     break;
             }
@@ -77,7 +63,6 @@ function PlayerScreenNew({ name, playerId, roomCode }) {
 
         socket.onclose = () => {
             console.log("WebSocket disconnected");
-            setConnected(false);
         };
 
         socket.onerror = (err) => {
@@ -91,14 +76,6 @@ function PlayerScreenNew({ name, playerId, roomCode }) {
             socket.close();
         };
     }, []);
-
-    // if (!playerId || !roomCode) {
-    //     return (
-    //         <div>
-    //             <JoinRoomForm onJoinSuccess={handleJoinSuccess} />
-    //         </div>
-    //     );
-    // }
 
     return (
         <div className="max-w-md mx-auto mt-10 p-6 bg-gray-800 shadow-xl rounded-xl text-center space-y-4 text-gray-100">
@@ -121,7 +98,6 @@ function PlayerScreenNew({ name, playerId, roomCode }) {
                 <span className="font-mono text-white">{roomCode}</span>
             </p>
 
-            {/* Animated "Get Ready..." message */}
             {!playerState.gameStarted && playerState.gameStarting && (
                 <p className="text-2xl font-semibold animate-bounce">
                     Get ready...
