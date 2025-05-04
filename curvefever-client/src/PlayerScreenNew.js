@@ -102,8 +102,17 @@ function PlayerScreenNew() {
     return (
         <div className="max-w-md mx-auto mt-10 p-6 bg-gray-800 shadow-xl rounded-xl text-center space-y-4 text-gray-100">
             <h2 className="text-2xl font-bold text-white">
-                {playerState.gameStarted ? "Don't crash" : "Welcome"},{" "}
-                <span className="text-blue-400">{name}</span>
+                {playerState.gameStarted ? (
+                    playerState.eliminated ? (
+                        "You crashed!"
+                    ) : (
+                        "Don't crash!"
+                    )
+                ) : (
+                    <>
+                        Welcome, <span className="text-blue-400">{name}</span>
+                    </>
+                )}
             </h2>
 
             <p className="text-sm text-gray-300">

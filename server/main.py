@@ -127,11 +127,6 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str,
                     game.add_player(player, websocket)
                     await broadcast_lobby(room_code)
 
-                    await websocket.send_json({
-                        "type": "player_info",
-                        "playerId": player.id,
-                    })
-
                 elif message["type"] == "reconnect":
                     try:
                         player_id = message["player_id"]
