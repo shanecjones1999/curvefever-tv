@@ -71,6 +71,10 @@ const TVScreen = ({ roomCode }) => {
             case "countdown":
                 setCountdown(data.seconds);
                 break;
+            case "game_over":
+                setGameStarted(false);
+                setGameStarting(false);
+                break;
             default:
                 break;
         }
