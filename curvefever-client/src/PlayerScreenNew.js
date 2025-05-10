@@ -46,6 +46,17 @@ function PlayerScreenNew({ name, playerId, roomCode }) {
                     window.location.href = "/";
                     break;
                 case "player_state_update":
+                    if (
+                        !playerState.gameStarted &&
+                        eventData.playerState.gameStarted
+                    ) {
+                        setPlacement(false);
+                    } else if (
+                        !playerState.gameStarting &&
+                        eventData.playerState.gameStarting
+                    ) {
+                        setPlacement(false);
+                    }
                     setPlayerState((prev) => ({
                         ...prev,
                         ...eventData.playerState,
@@ -113,7 +124,12 @@ function PlayerScreenNew({ name, playerId, roomCode }) {
                 </>
             )}
 
-            {placement && <PlayerGameOver placement={placement} />}
+            {placement && (
+                <PlayerGameOver
+                    placement={placement}
+                    onClose={() => setPlacement(false)}
+                />
+            )}
 
             {playerState.gameStarted && (
                 <PlayerControls
