@@ -1,4 +1,3 @@
-// PlayerGameOver.js
 import React from "react";
 
 const PlayerGameOver = ({ placement, onClose }) => (
