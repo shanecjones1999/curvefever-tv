@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import TVScreen from "./TVScreen";
-import PlayerScreen from "./PlayerScreen";
 import JoinRoomForm from "./JoinRoomForm";
 import PlayerScreenNew from "./PlayerScreenNew";
 
