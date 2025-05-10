@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import PlayerControls from "./PlayerControls";
+import PlayerGameOver from "./PlayerGameOver";
+import PlayerGameStarting from "./PlayerGameStarting";
+import PlayerWelcome from "./PlayerWelcome";
 
 function PlayerScreenNew({ name, playerId, roomCode }) {
     const [playerState, setPlayerState] = useState({
@@ -67,6 +70,7 @@ function PlayerScreenNew({ name, playerId, roomCode }) {
                     }
                     break;
                 default:
+                    console.warn("Unhandled message type:", eventData);
                     break;
             }
         };
@@ -89,52 +93,39 @@ function PlayerScreenNew({ name, playerId, roomCode }) {
 
     return (
         <div className="max-w-md mx-auto mt-10 p-6 bg-gray-800 shadow-xl rounded-xl text-center space-y-4 text-gray-100">
-            <h2 className="text-2xl font-bold text-white">
-                {playerState.gameStarted ? (
-                    playerState.eliminated ? (
-                        "You crashed!"
-                    ) : (
-                        "Don't crash!"
-                    )
-                ) : (
-                    <>
-                        Welcome, <span className="text-blue-400">{name}</span>
-                    </>
-                )}
-            </h2>
-
-            <p className="text-sm text-gray-300">
-                You are in room:{" "}
-                <span className="font-mono text-white">{roomCode}</span>
-            </p>
-
-            {placement && (
-                <div className="h-screen flex flex-col justify-center items-center text-white text-center px-4">
-                    <h2 className="text-4xl font-bold mb-4">Game Over</h2>
-                    <p className="text-2xl mb-2">
-                        You placed{" "}
-                        {placement === 1 ? "1st 🏆" : `${placement}th`}!
-                    </p>
-                </div>
-            )}
-
-            {!playerState.gameStarted && playerState.gameStarting && (
-                <p className="text-2xl font-semibold animate-bounce">
-                    Get ready...
-                </p>
-            )}
-
             {playerState.gameStarted ? (
+                playerState.eliminated ? (
+                    <h2 className="text-2xl font-bold text-white">
+                        You crashed!
+                    </h2>
+                ) : (
+                    <h2 className="text-2xl font-bold text-white">
+                        Don't crash!
+                    </h2>
+                )
+            ) : (
+                <>
+                    {playerState.gameStarting ? (
+                        <PlayerGameStarting />
+                    ) : (
+                        <PlayerWelcome name={name} roomCode={roomCode} />
+                    )}
+                </>
+            )}
+
+            {placement && <PlayerGameOver placement={placement} />}
+
+            {playerState.gameStarted && (
                 <PlayerControls
                     sendDirection={sendDirection}
                     disabled={playerState.eliminated}
                 />
-            ) : (
-                !playerState.gameStarting && (
-                    <p className="text-lg text-gray-200 italic">
-                        Waiting for game to start...
-                    </p>
-                )
+            )}
+
+            {!playerState.gameStarted && !playerState.gameStarting && (
+                <p className="text-lg text-gray-200 italic">
+                    Waiting for game to start...
+                </p>
             )}
         </div>
     );
