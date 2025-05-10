@@ -8,6 +8,8 @@ function PlayerScreenNew({ name, playerId, roomCode }) {
         gameStarting: false,
         countdown: null,
     });
+
+    const [placement, setPlacement] = useState(false);
     const socketRef = useRef(null);
 
     const sendDirection = (left, right) => {
@@ -50,6 +52,14 @@ function PlayerScreenNew({ name, playerId, roomCode }) {
                     setPlayerState(() => ({
                         eliminated: true,
                     }));
+                    break;
+                case "game_over":
+                    setPlayerState((prev) => ({
+                        ...prev,
+                        gameStarted: false,
+                        gameStarting: false,
+                    }));
+                    setPlacement(eventData.placement);
                     break;
                 case "invalid_room_code":
                     if (socketRef.current) {
@@ -97,6 +107,16 @@ function PlayerScreenNew({ name, playerId, roomCode }) {
                 You are in room:{" "}
                 <span className="font-mono text-white">{roomCode}</span>
             </p>
+
+            {placement && (
+                <div className="h-screen flex flex-col justify-center items-center text-white text-center px-4">
+                    <h2 className="text-4xl font-bold mb-4">Game Over</h2>
+                    <p className="text-2xl mb-2">
+                        You placed{" "}
+                        {placement === 1 ? "1st 🏆" : `${placement}th`}!
+                    </p>
+                </div>
+            )}
 
             {!playerState.gameStarted && playerState.gameStarting && (
                 <p className="text-2xl font-semibold animate-bounce">

@@ -191,6 +191,16 @@ class Game:
         self.started = False
         self.game_starting = False
 
+        placements = self.get_player_placements()
+
+        for player_id, socket in self.sockets.items():
+            await socket.send_json({
+                "type": "game_over",
+                "placement": placements[player_id],
+                "points": self.players[player_id].score,
+                "total_players": len(self.players)
+            })
+
         await self.tv_client.socket.send_json({"type": "game_over"})
 
         for player_id, socket in self.sockets.items():
@@ -361,5 +371,27 @@ class Game:
             "gameStarting": self.game_starting,
             "countdown": self.countdown,
         }
+
+    def get_player_placements(self):
+        # Sort players by points descending
+        sorted_players = sorted(self.players.values(),
+                                key=lambda p: p.score,
+                                reverse=True)
+
+        placements = {}
+        place = 1
+        prev_points = None
+        same_rank_count = 0
+
+        for i, player in enumerate(sorted_players):
+            if player.score == prev_points:
+                same_rank_count += 1
+            else:
+                place = i + 1
+                same_rank_count = 1
+                prev_points = player.score
+            placements[player.id] = place
+
+        return placements
 
     # def remove_player(self, player_id):
