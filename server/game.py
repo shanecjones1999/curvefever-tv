@@ -202,10 +202,9 @@ class Game:
             })
 
     async def game_loop(self):
+        print("Game loop started.")
         try:
             while not self.game_over:
-                if self.loop_task.cancelled():
-                    break
                 self.frame_count += 1
                 self.game_index += 1
 
@@ -215,21 +214,67 @@ class Game:
                     await self.smart_check_collision(player)
 
                 await self.handle_eliminated_queue()
-
                 await self.broadcast_game_state()
-                round_over = self.is_round_over()
-                if round_over:
+
+                if self.is_round_over():
                     await self.end_round()
                     await asyncio.sleep(0.1)
                     await self.handle_round_start()
 
                 await asyncio.sleep(self.frame_rate)
+
         except asyncio.CancelledError:
             print("Game loop received cancellation.")
-            # optional: clean-up
+            # Optional cleanup: set game state flags, inform clients, etc.
+            self.game_over = True
+            self.started = False
+            self.game_starting = False
+
+            await self.tv_client.socket.send_json({"type": "game_cancelled"})
+
+            for player_id, socket in self.sockets.items():
+                await socket.send_json({
+                    "type":
+                    "player_state_update",
+                    "playerState":
+                    self.get_player_state(self.players[player_id])
+                })
+
+            # Important: re-raise so `await self.loop_task` in `end_game()` finishes properly
             raise
+
         finally:
             print("Game loop exiting.")
+
+    # async def game_loop(self):
+    #     try:
+    #         while not self.game_over:
+    #             if self.loop_task.cancelled():
+    #                 break
+    #             self.frame_count += 1
+    #             self.game_index += 1
+
+    #             self.update_player_positions()
+
+    #             for player in self.players.values():
+    #                 await self.smart_check_collision(player)
+
+    #             await self.handle_eliminated_queue()
+
+    #             await self.broadcast_game_state()
+    #             round_over = self.is_round_over()
+    #             if round_over:
+    #                 await self.end_round()
+    #                 await asyncio.sleep(0.1)
+    #                 await self.handle_round_start()
+
+    #             await asyncio.sleep(self.frame_rate)
+    #     except asyncio.CancelledError:
+    #         print("Game loop received cancellation.")
+    #         # optional: clean-up
+    #         raise
+    #     finally:
+    #         print("Game loop exiting.")
 
     async def handle_eliminated_queue(self):
         for player_id in self.eliminated_players_queue:
