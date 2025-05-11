@@ -45,7 +45,7 @@ function JoinRoomForm({ onJoinSuccess, handleBackClick }) {
                 </label>
                 <input
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => setName(e.target.value.slice(0, 12))}
                     required
                     className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />

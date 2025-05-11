@@ -114,7 +114,7 @@ const TVScreen = ({ roomCode, handleBackClick }) => {
                     </div>
                 </div>
             ) : (
-                <div className="max-w-md mx-auto p-6 bg-gray-800 shadow-lg rounded-xl space-y-4">
+                <div className="max-w-xl mx-auto p-6 bg-gray-800 shadow-lg rounded-xl space-y-4">
                     <div className="w-full max-w-xl p-6 rounded-xl text-center">
                         <h2 className="text-3xl font-bold mb-4">
                             Room Code: {roomCode}
@@ -122,16 +122,26 @@ const TVScreen = ({ roomCode, handleBackClick }) => {
 
                         <WaitingMessage />
                     </div>
-                    <ul className="my-6 space-y-2">
-                        {Object.values(players).map((player) => (
-                            <li
-                                key={player.name}
-                                className="bg-white/10 rounded-md py-2 text-lg"
-                            >
-                                {player.name}
-                            </li>
-                        ))}
-                    </ul>
+
+                    <div className="flex justify-center items-center h-full">
+                        <div className="flex flex-wrap gap-4 my-4">
+                            {Object.values(players).map((player) => (
+                                <div
+                                    key={player.name}
+                                    className="flex items-center bg-white/10 rounded-md py-2 px-3 text-lg"
+                                >
+                                    <div
+                                        className="w-5 h-5 rounded-full mr-3"
+                                        style={{
+                                            backgroundColor: player.color,
+                                        }}
+                                    />
+                                    <span>{player.name}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
                     <div className="flex justify-around">
                         <button
                             className="w-1/3 py-2 px-4 rounded-lg text-white font-semibold bg-blue-600 hover:bg-blue-700"
@@ -146,7 +156,7 @@ const TVScreen = ({ roomCode, handleBackClick }) => {
                             className={`px-6 py-3 text-lg rounded-lg font-semibold transition ${
                                 Object.keys(players).length === 0
                                     ? "bg-green-700 opacity-50 cursor-not-allowed"
-                                    : "bg-green-500 hover:bg-green-600"
+                                    : "bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow"
                             }`}
                         >
                             Start Game
