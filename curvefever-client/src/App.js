@@ -99,7 +99,10 @@ const App = () => {
                         </div>
                     </div>
                 ) : view === "tv" ? (
-                    <TVScreen roomCode={roomCode} />
+                    <TVScreen
+                        roomCode={roomCode}
+                        handleBackClick={() => setView("")}
+                    />
                 ) : view === "join" ? (
                     <JoinRoomForm
                         onJoinSuccess={handleJoinSuccess}

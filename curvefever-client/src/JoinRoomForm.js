@@ -76,8 +76,8 @@ function JoinRoomForm({ onJoinSuccess, handleBackClick }) {
                     disabled={loading}
                     className={`w-2/3 py-2 px-4 rounded-lg text-white font-semibold whitespace-nowrap ${
                         loading
-                            ? "bg-gray-500 cursor-not-allowed"
-                            : "bg-blue-600 hover:bg-blue-700"
+                            ? "bg-green-700 opacity-50 cursor-not-allowed"
+                            : "bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow"
                     }`}
                 >
                     {loading ? "Joining..." : "Join Room"}

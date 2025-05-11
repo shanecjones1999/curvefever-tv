@@ -6,7 +6,7 @@ import { Copy, Undo2 } from "lucide-react";
 import WaitingMessage from "./hooks/waitingMessage";
 import { useWebSocket } from "./hooks/useWebSocket";
 
-const TVScreen = ({ roomCode }) => {
+const TVScreen = ({ roomCode, handleBackClick }) => {
     const [players, setPlayers] = useState({});
     const [gameStarting, setGameStarting] = useState(false);
     const [gameStarted, setGameStarted] = useState(false);
@@ -114,35 +114,11 @@ const TVScreen = ({ roomCode }) => {
                     </div>
                 </div>
             ) : (
-                <div className="min-h-screen flex flex-col items-center justify-start px-4 py-6 text-white">
-                    <div className="w-full max-w-xl flex justify-start mb-4">
-                        <button
-                            onClick={() => window.location.reload()}
-                            className="flex items-center gap-1 text-sm px-3 py-2 rounded-md hover:bg-gray-700 transition"
-                        >
-                            <Undo2 className="w-4 h-4" />
-                            <span>Back</span>
-                        </button>
-                    </div>
+                <div className="max-w-md mx-auto p-6 bg-gray-800 shadow-lg rounded-xl space-y-4">
                     <div className="w-full max-w-xl p-6 rounded-xl text-center">
-                        <h2 className="text-3xl font-bold mb-4">Lobby</h2>
-                        <h3 className="text-xl mb-1 flex items-center gap-2">
-                            Room Code:{" "}
-                            <span className="font-mono tracking-widest bg-gray-800 px-3 py-1 rounded-md inline-block">
-                                {roomCode}
-                            </span>
-                            <button
-                                onClick={() => {
-                                    if (navigator.clipboard) {
-                                        navigator.clipboard.writeText(roomCode);
-                                    }
-                                }}
-                                className="ml-1 px-2 py-1 text-sm rounded bg-gray-700 hover:bg-gray-600 transition"
-                                title="Copy to clipboard"
-                            >
-                                <Copy />
-                            </button>
-                        </h3>
+                        <h2 className="text-3xl font-bold mb-4">
+                            Room Code: {roomCode}
+                        </h2>
 
                         <WaitingMessage />
                     </div>
@@ -156,17 +132,26 @@ const TVScreen = ({ roomCode }) => {
                             </li>
                         ))}
                     </ul>
-                    <button
-                        onClick={startGame}
-                        disabled={Object.keys(players).length === 0}
-                        className={`px-6 py-3 text-lg rounded-lg font-semibold transition ${
-                            Object.keys(players).length === 0
-                                ? "bg-green-700 opacity-50 cursor-not-allowed"
-                                : "bg-green-500 hover:bg-green-600"
-                        }`}
-                    >
-                        Start Game
-                    </button>
+                    <div className="flex justify-around">
+                        <button
+                            className="w-1/3 py-2 px-4 rounded-lg text-white font-semibold bg-blue-600 hover:bg-blue-700"
+                            onClick={handleBackClick}
+                            type="button"
+                        >
+                            Back
+                        </button>
+                        <button
+                            onClick={startGame}
+                            disabled={Object.keys(players).length === 0}
+                            className={`px-6 py-3 text-lg rounded-lg font-semibold transition ${
+                                Object.keys(players).length === 0
+                                    ? "bg-green-700 opacity-50 cursor-not-allowed"
+                                    : "bg-green-500 hover:bg-green-600"
+                            }`}
+                        >
+                            Start Game
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
