@@ -47,6 +47,7 @@ export class Player {
         ctx.fillStyle = "#ffffff";
         ctx.fillText(this.name, this.x, this.y - this.radius - 11);
     }
+
     drawTrail(ctx) {
         if (this.trail.length < 2) return;
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function JoinRoomForm({ onJoinSuccess }) {
+function JoinRoomForm({ onJoinSuccess, handleBackClick }) {
     const [name, setName] = useState("");
     const [roomCode, setRoomCode] = useState("");
     const [error, setError] = useState(null);
@@ -63,17 +63,26 @@ function JoinRoomForm({ onJoinSuccess }) {
                 />
             </div>
 
-            <button
-                type="submit"
-                disabled={loading}
-                className={`w-full py-2 px-4 rounded-lg text-white font-semibold ${
-                    loading
-                        ? "bg-gray-500 cursor-not-allowed"
-                        : "bg-blue-600 hover:bg-blue-700"
-                }`}
-            >
-                {loading ? "Joining..." : "Join Room"}
-            </button>
+            <div className="flex justify-between space-x-4">
+                <button
+                    className="w-1/3 py-2 px-4 rounded-lg text-white font-semibold bg-blue-600 hover:bg-blue-700"
+                    onClick={handleBackClick}
+                    type="button"
+                >
+                    Back
+                </button>
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className={`w-2/3 py-2 px-4 rounded-lg text-white font-semibold whitespace-nowrap ${
+                        loading
+                            ? "bg-gray-500 cursor-not-allowed"
+                            : "bg-blue-600 hover:bg-blue-700"
+                    }`}
+                >
+                    {loading ? "Joining..." : "Join Room"}
+                </button>
+            </div>
 
             {error && <p className="text-red-400 text-sm">{error}</p>}
         </form>

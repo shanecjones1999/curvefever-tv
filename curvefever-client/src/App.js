@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import TVScreen from "./TVScreen";
 import JoinRoomForm from "./JoinRoomForm";
 import PlayerScreenNew from "./PlayerScreenNew";
+import CurveFeverBackground from "./CurveFeverBackground";
 
 const App = () => {
     const [view, setView] = useState("");
@@ -74,41 +75,47 @@ const App = () => {
     }, []);
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-700 p-8 text-center">
-            {!view ? (
-                <div className="space-y-6">
-                    <h1 className="text-3xl font-bold text-gray-100">
-                        curvefever.tv
-                    </h1>
-                    <div className="space-x-4">
-                        <button
-                            onClick={handleTVClick}
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow"
-                        >
-                            Create Room
-                        </button>
-                        <button
-                            onClick={() => setView("join")}
-                            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow"
-                        >
-                            Join Room
-                        </button>
+        <>
+            <CurveFeverBackground />
+            <div className="flex flex-col items-center justify-center min-h-screen  p-8 text-center">
+                {!view ? (
+                    <div className="space-y-6 max-w-md mx-auto p-6 bg-gray-800 shadow-lg rounded-xl ">
+                        <h1 className="text-3xl font-bold text-gray-100">
+                            curvefever.tv
+                        </h1>
+                        <div className="space-x-4">
+                            <button
+                                onClick={handleTVClick}
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow"
+                            >
+                                Create Room
+                            </button>
+                            <button
+                                onClick={() => setView("join")}
+                                className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow"
+                            >
+                                Join Room
+                            </button>
+                        </div>
                     </div>
-                </div>
-            ) : view === "tv" ? (
-                <TVScreen roomCode={roomCode} />
-            ) : view === "join" ? (
-                <JoinRoomForm onJoinSuccess={handleJoinSuccess} />
-            ) : view === "player" ? (
-                <PlayerScreenNew
-                    roomCode={roomCode}
-                    playerId={playerId}
-                    name={name}
-                />
-            ) : (
-                <div>UNKNOWN</div>
-            )}
-        </div>
+                ) : view === "tv" ? (
+                    <TVScreen roomCode={roomCode} />
+                ) : view === "join" ? (
+                    <JoinRoomForm
+                        onJoinSuccess={handleJoinSuccess}
+                        handleBackClick={() => setView("")}
+                    />
+                ) : view === "player" ? (
+                    <PlayerScreenNew
+                        roomCode={roomCode}
+                        playerId={playerId}
+                        name={name}
+                    />
+                ) : (
+                    <div>UNKNOWN</div>
+                )}
+            </div>
+        </>
     );
 };
 
