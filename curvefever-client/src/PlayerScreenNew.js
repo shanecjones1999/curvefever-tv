@@ -4,7 +4,7 @@ import PlayerGameOver from "./PlayerGameOver";
 import PlayerGameStarting from "./PlayerGameStarting";
 import PlayerWelcome from "./PlayerWelcome";
 
-function PlayerScreenNew({ name, playerId, roomCode }) {
+function PlayerScreenNew({ name, playerId, roomCode, sgs }) {
     const [playerState, setPlayerState] = useState({
         gameStarted: false,
         eliminated: false,
@@ -101,6 +101,14 @@ function PlayerScreenNew({ name, playerId, roomCode }) {
             socket.close();
         };
     }, []);
+
+    useEffect(() => {
+        if (playerState.gameStarted) {
+            sgs(true);
+        } else {
+            sgs(false);
+        }
+    }, [playerState, sgs]);
 
     return (
         <div className="max-w-md mx-auto mt-10 p-6 bg-gray-800 shadow-xl rounded-xl text-center space-y-4 text-gray-100">

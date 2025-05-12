@@ -10,6 +10,7 @@ const HomeScreen = () => {
     const [roomCode, setRoomCode] = useState("");
     const [playerId, setPlayerId] = useState(null);
     const [name, setName] = useState();
+    const [gameStarted, setGameStarted] = useState(false);
 
     const handleTVClick = async () => {
         try {
@@ -77,8 +78,13 @@ const HomeScreen = () => {
 
     return (
         <>
-            <CurveFeverBackground />
-            <div className="flex flex-col items-center justify-center min-h-screen  p-8 text-center">
+            {!gameStarted && <CurveFeverBackground />}
+
+            <div
+                className={`flex flex-col items-center justify-center min-h-screen p-8 text-center ${
+                    gameStarted ? "bg-gray-700" : ""
+                }`}
+            >
                 {!view ? (
                     <div className="space-y-6 max-w-md mx-auto p-6 bg-gray-800 shadow-lg rounded-xl ">
                         <h1 className="text-3xl font-bold text-gray-100">
@@ -103,6 +109,7 @@ const HomeScreen = () => {
                     <TVScreen
                         roomCode={roomCode}
                         handleBackClick={() => setView("")}
+                        sgs={setGameStarted}
                     />
                 ) : view === "join" ? (
                     <JoinRoomForm
@@ -114,6 +121,7 @@ const HomeScreen = () => {
                         roomCode={roomCode}
                         playerId={playerId}
                         name={name}
+                        sgs={setGameStarted}
                     />
                 ) : (
                     <div>UNKNOWN</div>

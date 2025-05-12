@@ -8,7 +8,7 @@ import { useWebSocket } from "./hooks/useWebSocket";
 import LobbyPlayers from "./LobbyPlayers";
 import GameScreen from "./GameScreen";
 
-const TVScreen = ({ roomCode, handleBackClick }) => {
+const TVScreen = ({ roomCode, handleBackClick, sgs }) => {
     const [players, setPlayers] = useState({});
     const [gameStarting, setGameStarting] = useState(false);
     const [gameStarted, setGameStarted] = useState(false);
@@ -81,6 +81,14 @@ const TVScreen = ({ roomCode, handleBackClick }) => {
                 break;
         }
     }, [lastMessage]);
+
+    useEffect(() => {
+        if (gameStarted) {
+            sgs(true);
+        } else {
+            sgs(false);
+        }
+    }, [gameStarted, sgs]);
 
     const startGame = () => {
         sendJson({ type: "start_game" });
