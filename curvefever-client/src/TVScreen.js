@@ -6,6 +6,7 @@ import { Copy, Undo2 } from "lucide-react";
 import WaitingMessage from "./hooks/waitingMessage";
 import { useWebSocket } from "./hooks/useWebSocket";
 import LobbyPlayers from "./LobbyPlayers";
+import GameScreen from "./GameScreen";
 
 const TVScreen = ({ roomCode, handleBackClick }) => {
     const [players, setPlayers] = useState({});
@@ -99,26 +100,20 @@ const TVScreen = ({ roomCode, handleBackClick }) => {
                     </div>
                 </div>
             ) : gameStarted ? (
-                <div className="flex h-screen w-full text-white">
-                    <div className="w-1/4 p-4 border-gray-800 flex flex-col justify-start mt-16">
-                        <Scoreboard players={Object.values(players)} />
-                    </div>
-
-                    <div className="flex-1 p-4 relative flex items-center justify-center">
-                        <GameCanvas players={Object.values(players)} />
-
-                        {countdown >= 1 && (
-                            <div className="absolute inset-0 z-50 flex items-center justify-center text-white text-8xl font-bold">
-                                {countdown}
-                            </div>
-                        )}
-                    </div>
-                </div>
+                <GameScreen players={players}></GameScreen>
             ) : (
                 <div className="max-w-xl mx-auto p-6 bg-gray-800 shadow-lg rounded-xl space-y-4">
                     <div className="w-full max-w-xl p-6 rounded-xl text-center">
                         <h2 className="text-3xl font-bold mb-4">
-                            Room Code: {roomCode}
+                            <button
+                                onClick={() => {
+                                    if (navigator.clipboard) {
+                                        navigator.clipboard.writeText(roomCode);
+                                    }
+                                }}
+                            >
+                                Room Code: {roomCode}
+                            </button>
                         </h2>
 
                         <WaitingMessage />

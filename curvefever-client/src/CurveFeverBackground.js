@@ -6,7 +6,8 @@ export default function CurveFeverBackground() {
 
     useEffect(() => {
         const canvas = canvasRef.current;
-        const ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext("2d"),
+            maxTrailLength = 1000;
 
         let width = (canvas.width = window.innerWidth);
         let height = (canvas.height = window.innerHeight);
@@ -50,8 +51,6 @@ export default function CurveFeverBackground() {
                         break;
                 }
                 player.angle = Math.random() * Math.PI * 2;
-                // player.x = 0;
-                // player.y = 0;
                 players.push(player);
             }
 
@@ -75,6 +74,9 @@ export default function CurveFeverBackground() {
                 if (player.y > height) player.y = 0;
 
                 player.update(player.x, player.y, false, 0);
+                if (player.trail.length > maxTrailLength) {
+                    player.trail.shift();
+                }
 
                 player.draw(ctx);
             });
