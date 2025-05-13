@@ -370,6 +370,7 @@ class Game:
             "eliminated": player.eliminated,
             "gameStarting": self.game_starting,
             "countdown": self.countdown,
+            "color": player.color,
         }
 
     def get_player_placements(self):

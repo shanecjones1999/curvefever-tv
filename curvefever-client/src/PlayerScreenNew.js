@@ -10,6 +10,7 @@ function PlayerScreenNew({ name, playerId, roomCode, sgs }) {
         eliminated: false,
         gameStarting: false,
         countdown: null,
+        color: null,
     });
 
     const [placement, setPlacement] = useState(false);
@@ -127,7 +128,11 @@ function PlayerScreenNew({ name, playerId, roomCode, sgs }) {
                     {playerState.gameStarting ? (
                         <PlayerGameStarting />
                     ) : (
-                        <PlayerWelcome name={name} roomCode={roomCode} />
+                        <PlayerWelcome
+                            name={name}
+                            roomCode={roomCode}
+                            color={playerState.color}
+                        />
                     )}
                 </>
             )}
