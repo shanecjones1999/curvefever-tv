@@ -32,7 +32,7 @@ const GameCanvas = ({ players }) => {
                 ref={canvasRef}
                 width={800}
                 height={600}
-                className="border-4 border-white shadow-lg bg-gray-900"
+                className="border-4 border-white shadow-2xl bg-gray-900"
             />
         </div>
     );

@@ -108,7 +108,10 @@ const TVScreen = ({ roomCode, handleBackClick, sgs }) => {
                     </div>
                 </div>
             ) : gameStarted ? (
-                <GameScreen players={players}></GameScreen>
+                <GameScreen
+                    players={players}
+                    countdown={countdown}
+                ></GameScreen>
             ) : (
                 <div className="max-w-xl mx-auto p-6 bg-gray-800 shadow-lg rounded-xl space-y-4">
                     <div className="w-full max-w-xl p-6 rounded-xl text-center">

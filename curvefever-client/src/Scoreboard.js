@@ -8,9 +8,9 @@ const Scoreboard = ({ players }) => {
     return (
         <motion.div
             layout
-            className="w-64 bg-gray-900 p-4 rounded-lg space-y-4"
+            className="w-64 bg-gray-900 p-4 rounded-2xl shadow-xl border border-gray-700"
         >
-            <h2 className="text-2xl font-bold text-white text-center">
+            <h2 className="text-2xl font-bold text-blue-400 text-center">
                 Scoreboard
             </h2>
             <p className="text-white text-center text-sm">
