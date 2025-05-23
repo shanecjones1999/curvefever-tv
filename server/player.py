@@ -51,18 +51,6 @@ class Player:
 
         self.trail.add_point(self.x, self.y, self.id, game_index)
 
-        if self.x > 800:
-            self.x = 0
-
-        if self.x < 0:
-            self.x = 800
-
-        if self.y > 600:
-            self.y = 0
-
-        if self.y < 0:
-            self.y = 600
-
     def reset(self):
         self.eliminated = False
         self.trail = Trail()

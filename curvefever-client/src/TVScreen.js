@@ -13,6 +13,8 @@ const TVScreen = ({ roomCode, handleBackClick, sgs }) => {
     const [gameStarting, setGameStarting] = useState(false);
     const [gameStarted, setGameStarted] = useState(false);
     const [countdown, setCountdown] = useState(null);
+    const [height, setHeight] = useState(0);
+    const [width, setWidth] = useState(0);
 
     const { lastMessage, sendJson, readyState, connect, disconnect } =
         useWebSocket({
@@ -69,6 +71,8 @@ const TVScreen = ({ roomCode, handleBackClick, sgs }) => {
                 break;
             case "game_starting":
                 setGameStarting(true);
+                setHeight(data.height);
+                setWidth(data.width);
                 break;
             case "countdown":
                 setCountdown(data.seconds);
@@ -111,6 +115,8 @@ const TVScreen = ({ roomCode, handleBackClick, sgs }) => {
                 <GameScreen
                     players={players}
                     countdown={countdown}
+                    height={height}
+                    width={width}
                 ></GameScreen>
             ) : (
                 <div className="max-w-xl mx-auto p-6 bg-gray-800 shadow-lg rounded-xl space-y-4">

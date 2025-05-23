@@ -114,6 +114,7 @@ class Game:
 
         self.game_starting = True
         self.game_over = False
+        self.set_screen_size()
 
         self.target_score = max(10, 10 * (len(self.players) - 1))
 
@@ -125,7 +126,11 @@ class Game:
                 self.get_player_state(self.players[player_id])
             })
 
-        await self.tv_client.socket.send_json({"type": "game_starting"})
+        await self.tv_client.socket.send_json({
+            "type": "game_starting",
+            "width": self.width,
+            "height": self.height
+        })
 
         await asyncio.sleep(3)
 
@@ -338,7 +343,8 @@ class Game:
             if point.player_id == player.id and self._is_recent(point):
                 continue
 
-            if self.is_colliding(player, point):
+            if self.is_out_of_bounds(player) or self.is_colliding(
+                    player, point):
                 player.eliminated = True
                 self.eliminated_players_queue.append(player.id)
                 if len(self.players) == 1:
@@ -359,6 +365,9 @@ class Game:
         distance_squared = dx * dx + dy * dy
         # return False
         return distance_squared < player.radius**2
+
+    def is_out_of_bounds(self, player: Player):
+        return player.x < 0 or player.x > self.width or player.y < 0 or player.y > self.height
 
     async def broadcast_tv_disconnect(self):
         for socket in self.sockets.values():
@@ -394,5 +403,14 @@ class Game:
             placements[player.id] = place
 
         return placements
+
+    def set_screen_size(self):
+        self.width = max(800, min(800 + 50 * (7 - 4), 1200))
+        self.height = max(600, min(600 + 50 * (7 - 4),
+                                   900))  #len(self.players)
+
+        # 1200 x 900 is max
+        # 800 x 600
+        # self.width = max(600, )
 
     # def remove_player(self, player_id):
