@@ -12,13 +12,16 @@ function JoinRoomForm({ onJoinSuccess, handleBackClick }) {
         setError(null);
 
         try {
-            const res = await fetch("http://localhost:8000/join_room", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ name, room_code: roomCode }),
-            });
+            const res = await fetch(
+                "https://curvefever-tv.onrender.com/join_room",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ name, room_code: roomCode }),
+                }
+            );
 
             if (!res.ok) {
                 const data = await res.json();

@@ -18,7 +18,7 @@ const TVScreen = ({ roomCode, handleBackClick, sgs }) => {
 
     const { lastMessage, sendJson, readyState, connect, disconnect } =
         useWebSocket({
-            url: `ws://localhost:8000/ws/${roomCode}/tv/${roomCode}`,
+            url: `ws://curvefever-tv.onrender.com/ws/${roomCode}/tv/${roomCode}`,
             autoConnect: true,
         });
 

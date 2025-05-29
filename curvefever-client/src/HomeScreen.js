@@ -14,7 +14,9 @@ const HomeScreen = () => {
 
     const handleTVClick = async () => {
         try {
-            const response = await fetch("http://localhost:8000/get_room_code");
+            const response = await fetch(
+                "https://curvefever-tv.onrender.com/get_room_code"
+            );
             const data = await response.json();
             setRoomCode(data.room_code);
             setView("tv");
@@ -49,7 +51,7 @@ const HomeScreen = () => {
 
             try {
                 const response = await fetch(
-                    `http://localhost:8000/check_player?room_code=${roomCode}&player_id=${playerId}`
+                    `https://curvefever-tv.onrender.com/check_player?room_code=${roomCode}&player_id=${playerId}`
                 );
                 if (!response.ok) {
                     localStorage.removeItem("playerInfo");
