@@ -31,7 +31,7 @@ function PlayerScreenNew({ name, playerId, roomCode, sgs }) {
     };
 
     useEffect(() => {
-        const wsUrl = `ws://curvefever-tv.onrender.com/ws/${roomCode}/player/${playerId}`;
+        const wsUrl = `wss://curvefever-tv.onrender.com/ws/${roomCode}/player/${playerId}`;
         const socket = new WebSocket(wsUrl);
 
         socket.onopen = () => {

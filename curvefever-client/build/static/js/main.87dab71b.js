@@ -21881,7 +21881,7 @@
                         }
                     );
                 })({
-                    url: `ws://curvefever-tv.onrender.com/ws/${t}/tv/${t}`,
+                    url: `wss://curvefever-tv.onrender.com/ws/${t}/tv/${t}`,
                     autoConnect: !0,
                 });
             (0, r.useEffect)(() => {
@@ -22295,7 +22295,7 @@
         return (
             (0, r.useEffect)(() => {
                 const e = new WebSocket(
-                    `ws://curvefever-tv.onrender.com/ws/${i}/player/${n}`
+                    `wss://curvefever-tv.onrender.com/ws/${i}/player/${n}`
                 );
                 return (
                     (e.onopen = () => {
